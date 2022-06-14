@@ -3,6 +3,7 @@ import { MapService } from '../map.service';
 import * as Cesium from 'cesium';
 import { Coordinate, MAP_LAYERS } from '../map.model';
 import * as turf from '@turf/turf';
+import { sleep } from 'src/utils/sleep';
 
 @Component({
   selector: 'app-sample',
@@ -12,6 +13,7 @@ import * as turf from '@turf/turf';
 export class SampleComponent implements OnInit {
   private entities: Cesium.Entity[] = [];
   private layer = MAP_LAYERS.POLYGON_LAYER;
+  private shouldMove = false;
 
   constructor(private mapService: MapService) {}
 
@@ -25,14 +27,19 @@ export class SampleComponent implements OnInit {
   }
 
   async polygon_layer_add() {
-    this.entities = this.createAirPlanes();
-    this.mapService.upsertEntitiesToLayer(this.layer, this.entities, []);
+    this.entities = [...this.entities, ...this.createAirPlanes()];
+    this.polygon_layer_update_entities();
     this.polygon_layer_show();
     await this.polygon_layer_focus();
   }
 
+  polygon_layer_update_entities() {
+    this.mapService.upsertEntitiesToLayer(this.layer, this.entities, []);
+  }
+
   polygon_layer_remove() {
     this.mapService.upsertEntitiesToLayer(this.layer, [], this.entities);
+    this.entities = [];
   }
 
   polygon_layer_hide() {
@@ -45,13 +52,17 @@ export class SampleComponent implements OnInit {
 
   async polygon_layer_focus() {
     if (this.entities[0]) {
-      await this.mapService.flyTo(this.entities[0]);
+      await this.mapService.flyTo(this.entities);
     } else {
       console.log(`entities are empty`);
     }
   }
 
-  createAirPlanes() {
+  polygon_layer_stop_move() {
+    this.shouldMove = false;
+  }
+
+  randomCoordinates(n: number): Coordinate[] {
     return turf
       .randomPoint(10, {
         bbox: turf.bbox(
@@ -61,24 +72,44 @@ export class SampleComponent implements OnInit {
           ])
         ),
       })
-      .features.map(
-        (feature) =>
-          new Cesium.Entity({
-            position: this.coordinateToCesiumPosition({
-              latitude: feature.geometry.coordinates[0],
-              longitude: feature.geometry.coordinates[1],
-            }),
-            billboard: {
-              image: '../../assets/fighter-jet.png', // default: undefined
-              // width: 100,
-              // height: 100,
-              // sizeInMeters: true,
-              color: Cesium.Color.RED,
-              scale: 0.1,
-              scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.5, 8.0e6, 0.0),
-            },
-          })
-      );
+      .features.map((feature) => {
+        return {
+          latitude: feature.geometry.coordinates[0],
+          longitude: feature.geometry.coordinates[1],
+        } as Coordinate;
+      });
+  }
+  createAirPlanes(): Cesium.Entity[] {
+    return this.randomCoordinates(10).map(
+      (coordinate) =>
+        new Cesium.Entity({
+          position: this.coordinateToCesiumPosition(coordinate),
+          billboard: {
+            image: '../../assets/fighter-jet.png', // default: undefined
+            color: Cesium.Color.RED,
+            scale: 0.1,
+            scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.5, 8.0e6, 0.0),
+          },
+        })
+    );
+  }
+
+  randomPosition(n: number) {
+    return this.randomCoordinates(n).map((coordinate) =>
+      this.coordinateToCesiumPosition(coordinate)
+    );
+  }
+
+  async polygon_layer_move() {
+    this.shouldMove = true;
+    while (this.shouldMove) {
+      this.entities = this.entities.map((entity) => {
+        entity.position = this.randomPosition(1)[0];
+        return entity;
+      });
+      this.polygon_layer_update_entities();
+      await sleep(1000);
+    }
   }
 
   createPolygon() {

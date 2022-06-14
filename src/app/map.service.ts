@@ -75,7 +75,7 @@ export class MapService {
     }
   }
 
-  async flyTo(entity: Entity) {
+  async flyTo(entity: Entity | Entity[]) {
     await this.viewer?.zoomTo(entity);
   }
 
