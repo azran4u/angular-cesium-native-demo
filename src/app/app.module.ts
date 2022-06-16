@@ -7,11 +7,15 @@ import { CesiumDirective } from './cesium.directive';
 import { MapLayerControllerService } from './map-layer-controller.service';
 import { MapService } from './map.service';
 import { MapComponent } from './map/map.component';
-import { SampleComponent } from './sample/sample.component';
 import { LayerSmapleComponent } from './layer-smaple/layer-smaple.component';
 
 @NgModule({
-  declarations: [AppComponent, CesiumDirective, MapComponent, SampleComponent, LayerSmapleComponent],
+  declarations: [
+    AppComponent,
+    CesiumDirective,
+    MapComponent,
+    LayerSmapleComponent,
+  ],
   imports: [BrowserModule],
   providers: [MapService, AirTrackMapLayerControllerService],
   bootstrap: [AppComponent],

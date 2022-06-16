@@ -1,6 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AirTrackMapLayerControllerService } from '../air-track-map-layer-controller';
 import { sleep } from 'src/utils/sleep';
+import { AirTrackMapEntity, Coordinate } from '../map.model';
+import { v4 as uuidv4 } from 'uuid';
+import { randomCoordinates } from '../../utils/randomCoordinates';
+import * as turf from '@turf/turf';
 
 @Component({
   selector: 'app-layer-smaple',
@@ -16,9 +20,7 @@ export class LayerSmapleComponent implements OnInit {
   }
 
   async add() {
-    await this.airTrackLayer.upsertEntities(
-      this.airTrackLayer.createAirPlanes()
-    );
+    await this.airTrackLayer.upsertEntities(this.createAirPlanes());
     await this.airTrackLayer.focusOnEntities();
   }
 
@@ -48,11 +50,39 @@ export class LayerSmapleComponent implements OnInit {
       this.airTrackLayer.upsertEntities(
         this.airTrackLayer
           .getCurrentEntities()
-          .map((entity) =>
-            this.airTrackLayer.changeAirPlanePositionRandomly(entity)
-          )
+          .map((entity) => this.changeAirPlanePositionRandomly(entity))
       );
       await sleep(1000);
     }
+  }
+
+  createAirPlanes(): AirTrackMapEntity[] {
+    return this.randomAirTrackCoordinates(10).map((coordinate) => {
+      return {
+        id: uuidv4(),
+        coordinate,
+      };
+    });
+  }
+
+  changeAirPlanePositionRandomly(
+    airPlane: AirTrackMapEntity
+  ): AirTrackMapEntity {
+    return {
+      ...airPlane,
+      coordinate: this.randomAirTrackCoordinates(1)[0],
+    };
+  }
+
+  private randomAirTrackCoordinates(n: number): Coordinate[] {
+    return randomCoordinates(
+      n,
+      turf.bbox(
+        turf.lineString([
+          [32, 31],
+          [36, 35],
+        ])
+      )
+    );
   }
 }
