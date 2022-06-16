@@ -26,25 +26,6 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
   }
 
   async upsertEntities(entities: T[]) {
-    // const hasNotChanged = this.currentEntities.filter(
-    //   (entity) => !entities.find((cur) => cur.id === entity.id)
-    // );
-    // const updatedEntities = entities.filter((entity) =>
-    //   this.currentEntities.find((current) => {
-    //     entity.id === current.id;
-    //   })
-    // );
-    // const addedEntities = _.differenceWith(
-    //   entities,
-    //   this.currentEntities,
-    //   (a, b) => a.id === b.id
-    // );
-    // this.currentEntities = [
-    //   ...hasNotChanged,
-    //   ...updatedEntities,
-    //   ...addedEntities,
-    // ];
-
     this.currentEntities = [...this.currentEntities, ...entities];
     this.renderCurrentEntitiesOnMap();
     this.showLayer();
