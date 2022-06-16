@@ -1,7 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CesiumDirective } from '../cesium.directive';
-import { MAP_LAYERS } from '../map.model';
-import { MapService } from '../map.service';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-map',
