@@ -8,9 +8,4 @@ import { MapService } from '../map.service';
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.scss'],
 })
-export class MapComponent implements OnInit {
-  constructor(private mapService: MapService) {}
-  async ngOnInit() {
-    await this.mapService.createLayer(MAP_LAYERS.AIR_TRACK_LAYER);
-  }
-}
+export class MapComponent {}

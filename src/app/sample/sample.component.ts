@@ -18,11 +18,7 @@ export class SampleComponent implements OnInit {
   constructor(private mapService: MapService) {}
 
   async ngOnInit() {
-    Promise.all(
-      Object.values(MAP_LAYERS).map(async (layer) => {
-        await this.mapService.createLayer(layer);
-      })
-    );
+    await this.mapService.createLayer(MAP_LAYERS.POLYGON_LAYER);
     this.mapService.mouseHover();
   }
 

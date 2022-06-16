@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { Viewer, Entity } from 'cesium';
 import * as Cesium from 'cesium';
 import { Subject } from 'rxjs';
-import { AirTrackMapEntity } from './map.model';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +27,12 @@ export class MapService {
 
   async createLayer(name: string) {
     if (this.viewer?.dataSources.getByName(name).length === 0) {
-      await this.viewer.dataSources.add(new Cesium.CustomDataSource(name));
+      try {
+        await this.viewer.dataSources.add(new Cesium.CustomDataSource(name));
+      } catch (error) {
+        console.error(error);
+      }
+
       this.viewer.dataSources
         .getByName(name)[0]
         .entities.collectionChanged.addEventListener(this.onChanged.bind(this));
@@ -52,13 +56,28 @@ export class MapService {
         [...entitiesUpserted, ...entitiesRemoved].map((entity) =>
           ds[0].entities.remove(entity)
         );
-        entitiesUpserted.map((entity) => ds[0].entities.add(entity));
+        entitiesUpserted.map((entity) => {
+          const currentEntity = ds[0].entities.getById(entity.id);
+          if (!!currentEntity) {
+            ds[0].entities.removeById(entity.id);
+          }
+          ds[0].entities.add(entity);
+        });
         this.viewer?.entities.resumeEvents();
       } catch (error) {
         console.error(error);
         // ignore already exists
       }
     }
+  }
+
+  getEntities(layer: string) {
+    const ds = this.viewer?.dataSources.getByName(layer);
+    const isLayerExists = ds?.length === 1;
+    if (isLayerExists) {
+      return ds[0].entities.values;
+    }
+    return [];
   }
 
   showLayer(layer: string) {
