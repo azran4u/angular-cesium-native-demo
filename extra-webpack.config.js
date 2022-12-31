@@ -1,13 +1,14 @@
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+
 module.exports = {
   resolve: {
     fallback: {
-      fs: "empty",
-      Buffer: false,
-      http: "empty",
-      https: "empty",
-      zlib: "empty",
+      http: false,
+      https: false,
+      zlib: false,
     },
   },
+  // plugins: [new NodePolyfillPlugin()],
   module: {
     unknownContextCritical: false,
   },

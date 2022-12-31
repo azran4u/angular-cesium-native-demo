@@ -10,6 +10,8 @@ export class CesiumDirective {
   private viewer: Viewer;
   constructor(private el: ElementRef, private mapService: MapService) {
     console.log(`cesium directive constructor`);
+    Cesium.Ion.defaultAccessToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMWYwNzc0Ny03ZGFiLTQ2NDMtYjBhYi04NGFkYTJhZWI1NDMiLCJpZCI6MTE4NjcwLCJpYXQiOjE2NzEzNjUyOTV9.Ufg2h7HVgqgPgCSJrMo9UVH0n-LP-sUNPGwoxT0UWhQ';
     this.viewer = new Viewer(this.el.nativeElement, {
       sceneMode: Cesium.SceneMode.SCENE2D,
       baseLayerPicker: false,
