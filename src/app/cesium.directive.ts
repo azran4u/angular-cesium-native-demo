@@ -9,6 +9,8 @@ import * as Cesium from 'cesium';
 export class CesiumDirective {
   private viewer: Viewer;
   constructor(private el: ElementRef, private mapService: MapService) {
+    Cesium.Ion.defaultAccessToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMWYwNzc0Ny03ZGFiLTQ2NDMtYjBhYi04NGFkYTJhZWI1NDMiLCJpZCI6MTE4NjcwLCJpYXQiOjE2NzEzNjUyOTV9.Ufg2h7HVgqgPgCSJrMo9UVH0n-LP-sUNPGwoxT0UWhQ';
     console.log(`cesium directive constructor`);
     this.viewer = new Viewer(this.el.nativeElement, {
       sceneMode: Cesium.SceneMode.SCENE2D,
