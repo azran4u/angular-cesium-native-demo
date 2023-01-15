@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Viewer, Entity } from 'cesium';
+import { Viewer, Entity, Cartesian3, ConstantPositionProperty } from 'cesium';
 import * as Cesium from 'cesium';
 import { Subject } from 'rxjs';
+import { Coordinate } from './map.model';
+import { Store } from '@ngrx/store';
+import { onSelectEntity } from './states/map.actions';
+import { AreaService } from './map/services/area.service';
+import { singleRandomAirTrackCoordinate } from 'src/utils/randomCoordinates';
 
 @Injectable({
   providedIn: 'root',
@@ -14,9 +19,10 @@ export class MapService {
     changed: Cesium.Entity[];
   }>;
 
-  constructor() {
+  constructor(private store: Store, private areaService: AreaService) {
     this.changes = new Subject();
   }
+
   init(v: Viewer) {
     this.viewer = v;
   }
@@ -29,6 +35,7 @@ export class MapService {
     if (this.viewer?.dataSources.getByName(name).length === 0) {
       try {
         await this.viewer.dataSources.add(new Cesium.CustomDataSource(name));
+        await this.viewer.scene
       } catch (error) {
         console.error(error);
       }
@@ -36,6 +43,17 @@ export class MapService {
       this.viewer.dataSources
         .getByName(name)[0]
         .entities.collectionChanged.addEventListener(this.onChanged.bind(this));
+    }
+  }
+
+  onClick(selectedEntity: any) {
+    console.log(selectedEntity.position)
+    this.areaService.getCirclePolylineOutlinePositions(singleRandomAirTrackCoordinate(), 500000)
+    if(selectedEntity) {
+      this.store.dispatch(onSelectEntity({
+        selectedEntityId: selectedEntity.id,
+        layerName: selectedEntity.entityCollection.owner.name
+      }))
     }
   }
 
@@ -69,6 +87,34 @@ export class MapService {
         // ignore already exists
       }
     }
+  }
+
+  updateAirplaneColorBlue(id: string, layer: string) {
+    const airplaneToUpdate = this.getEntityById(id, layer)
+
+    if(airplaneToUpdate?.billboard) {
+      airplaneToUpdate.billboard.color = Cesium.Color.BLUE as any
+    }
+  }
+  
+  updateAirplaneColorYellow(id: string, layer: string) {
+    const airplaneToUpdate = this.getEntityById(id, layer)
+
+    if(airplaneToUpdate?.billboard) {
+      airplaneToUpdate.billboard.color = Cesium.Color.YELLOW as any
+    }
+  }
+
+  updateEntityPosition(id: string, layer: string, newPosition: Coordinate) {
+    const airplaneToUpdate = this.getEntityById(id, layer)
+
+    if(airplaneToUpdate?.billboard) {
+      airplaneToUpdate.position = new ConstantPositionProperty(new Cartesian3(newPosition.latitude, newPosition.longitude)) as any
+    }
+  }
+
+  getEntityById(id: string, layer: string) {
+    return this.viewer?.dataSources.getByName(layer)[0].entities.getById(id);
   }
 
   getEntities(layer: string) {

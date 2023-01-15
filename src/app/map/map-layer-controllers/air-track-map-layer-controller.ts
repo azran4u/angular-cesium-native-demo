@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import * as Cesium from 'cesium';
-import { AirTrackMapEntity, MAP_LAYERS } from './map.model';
+import { AirTrackMapEntity, MAP_LAYERS } from '../../map.model';
 import { MapLayerControllerService } from './map-layer-controller.service';
-import { coordinateToCesiumPosition } from '../utils/coordinateToCesiumPosition';
-import { MapService } from './map.service';
+import { coordinateToCesiumPosition } from '../../../utils/coordinateToCesiumPosition';
+import { MapService } from '../../map.service';
+import { AreaService } from '../services/area.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AirTrackMapLayerControllerService extends MapLayerControllerService<AirTrackMapEntity> {
-  constructor(map: MapService) {
+  constructor(map: MapService, private areaService: AreaService) {
     super(map);
     this.setLayer(MAP_LAYERS.AIR_TRACK_LAYER);
   }
@@ -19,6 +20,9 @@ export class AirTrackMapLayerControllerService extends MapLayerControllerService
         new Cesium.Entity({
           id: entity.id,
           position: coordinateToCesiumPosition(entity.coordinate),
+          // polyline: {
+          //   positions: this.areaService.getCirclePolylineOutlinePositions(entity.coordinate, 50000)
+          // },
           billboard: {
             image: '../assets/fighter-jet.png', // default: undefined
             color: Cesium.Color.RED,

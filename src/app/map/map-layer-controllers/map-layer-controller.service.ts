@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as Cesium from 'cesium';
-import { MapEntity, MAP_LAYERS } from './map.model';
-import { MapService } from './map.service';
+import { Coordinate, MapEntity, MAP_LAYERS } from '../../map.model';
+import { MapService } from '../../map.service';
 import * as _ from 'lodash';
 
 @Injectable({
@@ -39,6 +39,18 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
     );
   }
 
+  updateEntityColorById(id: string) {
+    this.mapService.updateAirplaneColorBlue(id, this.layer)
+  }
+  
+  updateEntityColorOnClick(id: string) {
+    this.mapService.updateAirplaneColorYellow(id, this.layer)
+  }
+  
+  updateEntityPosition(id: string, position: Coordinate) {
+    this.mapService.updateEntityPosition(id, this.layer, position)
+  }
+
   removeAllEntitiesFromLayer() {
     this.mapService.upsertEntitiesToLayer(
       this.layer,
@@ -57,8 +69,12 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
   }
 
   async focusOnEntities(entities?: T[]) {
-    const entitiesToFocusOn = entities ?? this.currentEntities;
+    // const entitiesToFocusOn = entities ?? this.currentEntities;
     await this.mapService.flyTo(this.mapService.getEntities(this.layer));
+  }
+  
+  async flyToEntity(id: string) {
+    await this.mapService.flyTo(this.mapService.getEntityById(id, this.layer) ?? []);
   }
 
   abstract convertToCesiumEntity(entities: T[]): Cesium.Entity[];

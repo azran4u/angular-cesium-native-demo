@@ -1,8 +1,18 @@
 <h1>air track layer</h1>
-<button (click)="add()">add</button>
+<button (click)="addAirTracks()">add air-tracks</button>
+<button (click)="addClosedAreas()">add closed-areas</button>
 <button (click)="remove()">remove</button>
 <button (click)="show()">show</button>
 <button (click)="hide()">hide</button>
 <button (click)="focus()">fly to</button>
 <button (click)="move()">move</button>
 <button (click)="stop_move()">stop move</button>
+<br><br>
+<input type="text" placeholder="amount to add" [(ngModel)]="inputEntitiesAmount"><br>
+<button (click)="customAddAirplanes()"></button>
+<button (click)="customAddCircles()"></button>
+<br><br>
+<input type="text" placeholder="update by id" name="inputId" [(ngModel)]="inputId"><br>
+<button (click)="updateColor()">Change color</button><br>
+<button (click)="updatePosition()">Change position</button><br>
+<button (click)="flyToEntity()">GoTo</button>
