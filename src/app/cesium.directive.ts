@@ -28,17 +28,17 @@ export class CesiumDirective {
       timeline: false,
     });
 
-    this.mapService.init(this.viewer);
+    // this.mapService.init(this.viewer);
 
-    this.viewer.selectedEntityChanged.addEventListener((selectedEntity) => {
-      this.mapService.onClick(selectedEntity);
-      // this.store.dispatch(onSelectEntity({ selectedEntity }))
-      // console.log(typeof selectedEntity)
-      // console.log(selectedEntity._properties['originalId']._value)
+    // this.viewer.selectedEntityChanged.addEventListener((selectedEntity) => {
+    //   this.mapService.onClick(selectedEntity);
+    //   // this.store.dispatch(onSelectEntity({ selectedEntity }))
+    //   // console.log(typeof selectedEntity)
+    //   // console.log(selectedEntity._properties['originalId']._value)
       
-      // console.log(selectedEntity.entityCollection.owner.name)
-      // console.log(selectedEntity._id)
-    })
+    //   // console.log(selectedEntity.entityCollection.owner.name)
+    //   // console.log(selectedEntity._id)
+    // })
   }
 
   getViewer(): Viewer {

@@ -7,6 +7,9 @@ import { randomCoordinates } from '../../utils/randomCoordinates';
 import * as turf from '@turf/turf';
 import { Event } from 'cesium';
 import { ClosedAreaMapLayerControllerService } from '../map/map-layer-controllers/closed-area-map-layer-controller';
+import { Store } from '@ngrx/store';
+import { addAirTracks } from '../states/air-track-state/air-track.actions';
+import { addClosedAreas } from '../states/closed-areas/closed-areas.actions';
 
 @Component({
   selector: 'app-layer-smaple',
@@ -20,7 +23,8 @@ export class LayerSmapleComponent implements OnInit {
 
   constructor(
     private airTrackLayer: AirTrackMapLayerControllerService, 
-    private closedAreasLayer: ClosedAreaMapLayerControllerService
+    private closedAreasLayer: ClosedAreaMapLayerControllerService,
+    private store: Store
   ) {}
 
   private shouldMove = false;
@@ -32,15 +36,19 @@ export class LayerSmapleComponent implements OnInit {
 
   customAddAirplanes() {
     // dispatch airplanes to store
+    
+    this.store.dispatch(addAirTracks({ airtracks: this.airTrackLayer.createAirPlanes(this.inputEntitiesAmount)}))
   }
 
   customAddCircles() {
     // dispatch closed areas to store
+    this.store.dispatch(addClosedAreas({ closedAreas: this.closedAreasLayer.createClosedAreas(this.inputEntitiesAmount)}))
+
   }
 
   async addAirTracks() {
-    await this.airTrackLayer.upsertEntities(this.createAirPlanes());
-    await this.airTrackLayer.focusOnEntities();
+    // await this.airTrackLayer.upsertEntities(this.createAirPlanes());
+    // await this.airTrackLayer.focusOnEntities();
   }
   
   async addClosedAreas() {

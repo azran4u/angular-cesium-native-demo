@@ -3,7 +3,7 @@ import { Coordinate } from '../app/map.model';
 import * as turf from '@turf/turf';
 
 export function randomCoordinates(n: number, bbox: BBox): Coordinate[] {
-  return randomPoint(10, {
+  return randomPoint(n, {
     bbox,
   }).features.map((feature) => {
     return {

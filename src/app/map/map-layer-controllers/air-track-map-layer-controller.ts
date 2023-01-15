@@ -5,6 +5,8 @@ import { MapLayerControllerService } from './map-layer-controller.service';
 import { coordinateToCesiumPosition } from '../../../utils/coordinateToCesiumPosition';
 import { MapService } from '../../map.service';
 import { AreaService } from '../services/area.service';
+import { randomAirTrackCoordinates } from 'src/utils/randomCoordinates';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root',
@@ -31,5 +33,16 @@ export class AirTrackMapLayerControllerService extends MapLayerControllerService
           },
         })
     );
+  }
+
+  createAirPlanes(amount: number): AirTrackMapEntity[] {
+    const airplanes = randomAirTrackCoordinates(amount).map((coordinate) => {
+      return {
+        id: uuidv4(),
+        coordinate,
+      };
+    });
+    console.log(airplanes.map(a => a.id))
+    return airplanes
   }
 }
