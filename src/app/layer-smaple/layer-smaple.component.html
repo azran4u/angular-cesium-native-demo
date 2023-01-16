@@ -15,6 +15,7 @@
     <button (click)="updateAirTracks()">Start Updating air-tracks</button>
     <button (click)="stopUpdatingAirTracks()">Stop Updating air-tracks</button>
     <button (click)="clearAllAirTracks()">clear air-tracks</button>
+    <button (click)="updateNonMapAirTracksProperties()">update non map related properties</button>
   </div>
   <div style="display: flex;flex-direction: column">
     <button (click)="customAddCircles()">add circles</button>
@@ -22,6 +23,12 @@
     <button (click)="updateClosedAreas()">Start Updating circles</button>
     <button (click)="stopUpdatingClosedAreas()">Stop Updating circles</button>
     <button (click)="clearAllClosedAreas()">clear circles</button>
+  </div>
+</div>
+
+<div style="display: flex;flex-direction: column">
+  <div *ngFor="let airtrack of airTracks | async" style="display: flex">
+    <span>{{airtrack.id}}</span><span>{{airtrack.firePower}}</span><span>{{airtrack.name}}</span><span>{{airtrack.from}}</span>
   </div>
 </div>
 <br><br>

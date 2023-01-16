@@ -12,7 +12,7 @@ import {AirTrackService} from '../air-track/services/air-track.service';
 import {
   clearAirTracksAction,
   listenToAirTracksUpdatesAction,
-  stopListenToAirTracksUpdatesAction,
+  stopListenToAirTracksUpdatesAction, updateNonMapAirTracksPropertiesAction,
   upsertAirTracksAction
 } from '../air-track/store/air-track.actions';
 import {focusOnEntitiesAction} from '../states/map.actions';
@@ -23,6 +23,7 @@ import {
   stopListenToClosedAreasUpdatesAction,
   upsertClosedAreasAction
 } from '../closed-areas/store/closed-areas.actions';
+import {selectAllQAirTracks} from '../air-track/store/air-track.reducer';
 
 @Component({
   selector: 'app-layer-smaple',
@@ -34,6 +35,8 @@ export class LayerSmapleComponent implements OnInit {
   inputId: string;
   inputEntitiesAmount: number = 0;
   MapLayersEnum = MAP_LAYERS;
+
+  airTracks = this.store.select(selectAllQAirTracks);
 
   constructor(
     private airTrackLayer: AirTrackMapLayerControllerService,
@@ -116,6 +119,10 @@ export class LayerSmapleComponent implements OnInit {
 
   clearAllAirTracks(): void {
     this.store.dispatch(clearAirTracksAction())
+  }
+
+  updateNonMapAirTracksProperties(): void {
+    this.store.dispatch(updateNonMapAirTracksPropertiesAction())
   }
 
   clearAllClosedAreas(): void {

@@ -5,7 +5,7 @@ import {
   upsertAirTracksAction,
   putAirTracksInStateActions,
   updateSomeAirTracksAction,
-  listenToAirTracksUpdatesAction, stopListenToAirTracksUpdatesAction
+  listenToAirTracksUpdatesAction, stopListenToAirTracksUpdatesAction, updateNonMapAirTracksPropertiesAction
 } from './air-track.actions';
 import {map, withLatestFrom} from 'rxjs';
 import {AirTrackService} from '../services/air-track.service';
@@ -59,21 +59,22 @@ export class AirTrackEffects {
     this.actions$.pipe(
       ofType(stopListenToAirTracksUpdatesAction),
       map(() => {
-        if(!isNil(this.intervalId)) {
+        if (!isNil(this.intervalId)) {
           clearInterval(this.intervalId)
         }
       })
     ), {dispatch: false}
   )
 
-  // updateNonMapProperties$ = createEffect(() =>
-  //   this.actions$.pipe(
-  //     ofType(updateSomeAirTracksAction),
-  //     withLatestFrom(this.store.pipe(select(selectAllQAirTracks))),
-  //     map(([_, airTracks]) => {
-  //       const sample: AirTrackMapEntity[] = sampleSize(airTracks, random(1, airTracks.length / 2));
-  //
-  //     })
-  //   )
-  // )
+  updateNonMapProperties$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(updateNonMapAirTracksPropertiesAction),
+      withLatestFrom(this.store.pipe(select(selectAllQAirTracks))),
+      map(([_, airTracks]) => {
+        const sample: AirTrackMapEntity[] = sampleSize(airTracks, random(1, airTracks.length / 2));
+        const updatedSample = this.airTrackService.updateNonMapProperties(sample);
+        return putAirTracksInStateActions({airtracks: updatedSample})
+      })
+    )
+  )
 }
