@@ -1,19 +1,15 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as Cesium from 'cesium';
-import { Coordinate, MapEntity, MAP_LAYERS } from '../../map.model';
-import { MapService } from '../../map.service';
-import * as _ from 'lodash';
+import {Coordinate, MAP_LAYERS, MapEntity} from '../../map.model';
+import {MapService} from '../../map.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export abstract class MapLayerControllerService<T extends MapEntity> {
-  protected currentEntities: T[] = [];
-  private layer = MAP_LAYERS.DEFAULT;
+  private readonly layer: MAP_LAYERS = MAP_LAYERS.DEFAULT;
 
-  constructor(private mapService: MapService) {}
-
-  setLayer(layer: MAP_LAYERS) {
+  protected constructor(private mapService: MapService, layer: MAP_LAYERS = MAP_LAYERS.DEFAULT) {
     this.layer = layer;
   }
 
@@ -21,20 +17,27 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
     await this.mapService.createLayer(this.layer);
   }
 
-  getCurrentEntities(): T[] {
-    return this.currentEntities;
+  get layerType(): MAP_LAYERS {
+    return this.layer
   }
 
-  async upsertEntities(entities: T[]) {
-    this.currentEntities = [...this.currentEntities, ...entities];
-    this.renderCurrentEntitiesOnMap();
+  upsertEntities(entities: T[]) {
+    this.renderCurrentEntitiesOnMap(entities);
     this.showLayer();
   }
 
-  renderCurrentEntitiesOnMap() {
+  upsertAndDeleteEntities(entitiesToUpsert:T[], entitiesToDelete: T[]): void {
     this.mapService.upsertEntitiesToLayer(
       this.layer,
-      this.convertToCesiumEntity(this.currentEntities),
+      this.convertToCesiumEntity(entitiesToUpsert),
+      this.convertToCesiumEntity(entitiesToDelete)
+    );
+  }
+
+  renderCurrentEntitiesOnMap(entities:T[]) {
+    this.mapService.upsertEntitiesToLayer(
+      this.layer,
+      this.convertToCesiumEntity(entities),
       []
     );
   }
@@ -42,11 +45,11 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
   updateEntityColorById(id: string) {
     this.mapService.updateAirplaneColorBlue(id, this.layer)
   }
-  
+
   updateEntityColorOnClick(id: string) {
     this.mapService.updateAirplaneColorYellow(id, this.layer)
   }
-  
+
   updateEntityPosition(id: string, position: Coordinate) {
     this.mapService.updateEntityPosition(id, this.layer, position)
   }
@@ -57,7 +60,6 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
       [],
       this.mapService.getEntities(this.layer)
     );
-    this.currentEntities = [];
   }
 
   hideLayer() {
@@ -72,10 +74,12 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
     // const entitiesToFocusOn = entities ?? this.currentEntities;
     await this.mapService.flyTo(this.mapService.getEntities(this.layer));
   }
-  
+
   async flyToEntity(id: string) {
     await this.mapService.flyTo(this.mapService.getEntityById(id, this.layer) ?? []);
   }
 
   abstract convertToCesiumEntity(entities: T[]): Cesium.Entity[];
+
+  abstract propertiesToListenWhenChangeHappens(): (keyof T)[]
 }

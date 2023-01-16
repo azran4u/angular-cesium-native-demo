@@ -1,22 +1,18 @@
-import { NgModule } from "@angular/core";
-import { EffectsModule } from "@ngrx/effects";
-import { StoreModule } from "@ngrx/store";
-import { AirTrackEffects } from "./air-track-state/air-track.effects";
-import { airTrackReducerToken, airTrackReducer } from "./air-track-state/air-track.reducer";
-import { ClosedAreasEffects } from "./closed-areas/closed-areas.effects";
-import { closedAreaReducer, closedAreaReducerToken } from "./closed-areas/closed-areas.reducer";
-import { MapEffects } from "./map.effects";
-import { mapReducerToken, mapReducer } from "./map.reducer";
+import {NgModule} from '@angular/core';
+import {EffectsModule} from '@ngrx/effects';
+import {StoreModule} from '@ngrx/store';
+import {ClosedAreasMapEffects} from './entities-effects/closed-areas.map.effects';
+import {MapEffects} from './map.effects';
+import {mapReducer, mapReducerToken} from './map.reducer';
+import {AirTrackMapEffects} from './entities-effects/air-track.map.effects';
 
 @NgModule({
     declarations: [],
     imports: [
       StoreModule.forRoot({}),
       EffectsModule.forRoot([]),
-      // EffectsModule.forFeature([ AirTrackEffects, MapEffects, ClosedAreasEffects ]),
-      // StoreModule.forFeature(mapReducerToken, mapReducer),
-      // StoreModule.forFeature(airTrackReducerToken, airTrackReducer),
-      // StoreModule.forFeature(closedAreaReducerToken, closedAreaReducer)
+      EffectsModule.forFeature([ MapEffects, ClosedAreasMapEffects, AirTrackMapEffects ]),
+      StoreModule.forFeature(mapReducerToken, mapReducer),
     ],
     providers: [],
     bootstrap: [],

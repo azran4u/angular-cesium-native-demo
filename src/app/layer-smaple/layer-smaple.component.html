@@ -5,12 +5,25 @@
 <button (click)="show()">show</button>
 <button (click)="hide()">hide</button>
 <button (click)="focus()">fly to</button>
-<button (click)="move()">move</button>
 <button (click)="stop_move()">stop move</button>
 <br><br>
 <input type="text" placeholder="amount to add" [(ngModel)]="inputEntitiesAmount"><br>
-<button (click)="customAddAirplanes()">add air-tracks</button>
-<button (click)="customAddCircles()">add circles</button>
+<div style="display: grid; grid-template-columns: auto auto; column-gap: 20px; max-width: 50vw">
+  <div style="display: flex;flex-direction: column">
+    <button (click)="customAddAirplanes()">add air-tracks</button>
+    <button (click)="focusOnEntities(MapLayersEnum.AIR_TRACK_LAYER)">focus on air-tracks</button>
+    <button (click)="updateAirTracks()">Start Updating air-tracks</button>
+    <button (click)="stopUpdatingAirTracks()">Stop Updating air-tracks</button>
+    <button (click)="clearAllAirTracks()">clear air-tracks</button>
+  </div>
+  <div style="display: flex;flex-direction: column">
+    <button (click)="customAddCircles()">add circles</button>
+    <button (click)="focusOnEntities(MapLayersEnum.CLOSED_AREA)">focus on circles</button>
+    <button (click)="updateClosedAreas()">Start Updating circles</button>
+    <button (click)="stopUpdatingClosedAreas()">Stop Updating circles</button>
+    <button (click)="clearAllClosedAreas()">clear circles</button>
+  </div>
+</div>
 <br><br>
 <input type="text" placeholder="update by id" name="inputId" [(ngModel)]="inputId"><br>
 <button (click)="updateColor()">Change color</button><br>

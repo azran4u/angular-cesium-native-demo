@@ -12,7 +12,26 @@ export interface MapEntity {
   label?: string;
 }
 
-export interface AirTrackMapEntity extends MapEntity {}
+export enum ColorEnum {
+  RED, GOLD, AQUA,MAGENTA,
+  YELLOW, DEEPPINK ,BLUE,GRAY, ORANGE,
+  PURPLE
+}
+
+export enum JetType {
+  fighter,
+  heli,
+  katbam
+}
+export interface AirTrackMapEntity extends MapEntity {
+  name: JetType;
+  color:ColorEnum;
+  radius: number;
+  from: string;
+  to: string;
+  firePower: number;
+}
+
 export interface ClosedAreaMapEntity extends MapEntity {}
 
 export enum MAP_LAYERS {

@@ -1,15 +1,28 @@
-import { Component, OnInit } from '@angular/core';
-import { AirTrackMapLayerControllerService } from '../map/map-layer-controllers/air-track-map-layer-controller';
-import { sleep } from 'src/utils/sleep';
-import { AirTrackMapEntity, Coordinate } from '../map.model';
-import { v4 as uuidv4 } from 'uuid';
-import { randomCoordinates } from '../../utils/randomCoordinates';
+import {Component, OnInit} from '@angular/core';
+import {AirTrackMapLayerControllerService} from '../map/map-layer-controllers/air-track-map-layer-controller.service';
+import {sleep} from 'src/utils/sleep';
+import {AirTrackMapEntity, Coordinate, MAP_LAYERS} from '../map.model';
+import {randomCoordinates} from '../../utils/randomCoordinates';
 import * as turf from '@turf/turf';
-import { Event } from 'cesium';
-import { ClosedAreaMapLayerControllerService } from '../map/map-layer-controllers/closed-area-map-layer-controller';
-import { Store } from '@ngrx/store';
-import { addAirTracks } from '../states/air-track-state/air-track.actions';
-import { addClosedAreas } from '../states/closed-areas/closed-areas.actions';
+import {
+  ClosedAreaMapLayerControllerService
+} from '../map/map-layer-controllers/closed-area-map-layer-controller.service';
+import {Store} from '@ngrx/store';
+import {AirTrackService} from '../air-track/services/air-track.service';
+import {
+  clearAirTracksAction,
+  listenToAirTracksUpdatesAction,
+  stopListenToAirTracksUpdatesAction,
+  upsertAirTracksAction
+} from '../air-track/store/air-track.actions';
+import {focusOnEntitiesAction} from '../states/map.actions';
+import {ClosedAreasService} from '../closed-areas/services/closed-areas.service';
+import {
+  clearClosedAreasAction,
+  listenToClosedAreasUpdatesAction,
+  stopListenToClosedAreasUpdatesAction,
+  upsertClosedAreasAction
+} from '../closed-areas/store/closed-areas.actions';
 
 @Component({
   selector: 'app-layer-smaple',
@@ -20,12 +33,16 @@ export class LayerSmapleComponent implements OnInit {
   // inputId: Event;
   inputId: string;
   inputEntitiesAmount: number = 0;
+  MapLayersEnum = MAP_LAYERS;
 
   constructor(
-    private airTrackLayer: AirTrackMapLayerControllerService, 
+    private airTrackLayer: AirTrackMapLayerControllerService,
     private closedAreasLayer: ClosedAreaMapLayerControllerService,
+    private airTrackService: AirTrackService,
+    private closedAreasService: ClosedAreasService,
     private store: Store
-  ) {}
+  ) {
+  }
 
   private shouldMove = false;
 
@@ -36,13 +53,14 @@ export class LayerSmapleComponent implements OnInit {
 
   customAddAirplanes() {
     // dispatch airplanes to store
-    
-    this.store.dispatch(addAirTracks({ airtracks: this.airTrackLayer.createAirPlanes(this.inputEntitiesAmount)}))
+    const airtracks = this.airTrackService.createAirTracks(this.inputEntitiesAmount);
+    this.store.dispatch(upsertAirTracksAction({airtracks}));
   }
 
   customAddCircles() {
     // dispatch closed areas to store
-    this.store.dispatch(addClosedAreas({ closedAreas: this.closedAreasLayer.createClosedAreas(this.inputEntitiesAmount)}))
+    const closedAreas = this.closedAreasService.createClosedAreas(this.inputEntitiesAmount);
+    this.store.dispatch(upsertClosedAreasAction({closedAreas}))
 
   }
 
@@ -50,7 +68,7 @@ export class LayerSmapleComponent implements OnInit {
     // await this.airTrackLayer.upsertEntities(this.createAirPlanes());
     // await this.airTrackLayer.focusOnEntities();
   }
-  
+
   async addClosedAreas() {
     await this.closedAreasLayer.upsertEntities(this.createAirPlanes());
     await this.closedAreasLayer.focusOnEntities();
@@ -76,10 +94,38 @@ export class LayerSmapleComponent implements OnInit {
     this.airTrackLayer.showLayer();
   }
 
+  focusOnEntities(layerName: MAP_LAYERS): void {
+    this.store.dispatch(focusOnEntitiesAction({layerName}))
+  }
+
+  updateAirTracks(): void {
+    this.store.dispatch(listenToAirTracksUpdatesAction())
+  }
+
+  stopUpdatingAirTracks(): void {
+    this.store.dispatch(stopListenToAirTracksUpdatesAction())
+  }
+
+  updateClosedAreas(): void {
+    this.store.dispatch(listenToClosedAreasUpdatesAction())
+  }
+
+  stopUpdatingClosedAreas(): void {
+    this.store.dispatch(stopListenToClosedAreasUpdatesAction())
+  }
+
+  clearAllAirTracks(): void {
+    this.store.dispatch(clearAirTracksAction())
+  }
+
+  clearAllClosedAreas(): void {
+    this.store.dispatch(clearClosedAreasAction())
+  }
+
   async focus() {
     await this.airTrackLayer.focusOnEntities();
   }
-  
+
   async flyToEntity() {
     await this.airTrackLayer.flyToEntity(this.inputId);
   }
@@ -88,27 +134,16 @@ export class LayerSmapleComponent implements OnInit {
     this.shouldMove = false;
   }
 
-  async move() {
-    this.shouldMove = true;
-    while (this.shouldMove) {
-      this.airTrackLayer.upsertEntities(
-        this.airTrackLayer
-          .getCurrentEntities()
-          .map((entity) => this.changeAirPlanePositionRandomly(entity))
-      );
-      await sleep(1000);
-    }
-  }
-
   createAirPlanes(): AirTrackMapEntity[] {
-    const airplanes = this.randomAirTrackCoordinates(10).map((coordinate) => {
-      return {
-        id: uuidv4(),
-        coordinate,
-      };
-    });
-    console.log(airplanes.map(a => a.id))
-    return airplanes
+    return [];
+    // const airplanes = this.randomAirTrackCoordinates(10).map((coordinate) => {
+    //   return {
+    //     id: uuidv4(),
+    //     coordinate,
+    //   };
+    // });
+    // console.log(airplanes.map(a => a.id))
+    // return airplanes
   }
 
   changeAirPlanePositionRandomly(

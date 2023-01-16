@@ -1,34 +1,41 @@
-import { Injectable } from '@angular/core';
-import { Viewer, Entity, Cartesian3, ConstantPositionProperty } from 'cesium';
+import {Injectable} from '@angular/core';
+import {Viewer, Entity, Cartesian3, ConstantPositionProperty, Fullscreen} from 'cesium';
 import * as Cesium from 'cesium';
-import { Subject } from 'rxjs';
-import { Coordinate } from './map.model';
-import { Store } from '@ngrx/store';
-import { onSelectEntity } from './states/map.actions';
-import { AreaService } from './map/services/area.service';
-import { singleRandomAirTrackCoordinate } from 'src/utils/randomCoordinates';
+import {Subject} from 'rxjs';
+import {Coordinate, MAP_LAYERS, MapEntity} from './map.model';
+import {Store} from '@ngrx/store';
+import {onSelectEntity} from './states/map.actions';
+import {AreaService} from './map/services/area.service';
+import {singleRandomAirTrackCoordinate} from 'src/utils/randomCoordinates';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
   private viewer: Viewer | undefined;
-  private changes: Subject<{
+  private readonly changes: Subject<{
     added: Cesium.Entity[];
     removed: Cesium.Entity[];
     changed: Cesium.Entity[];
   }>;
 
-  constructor(private store: Store, private areaService: AreaService) {
+  private readonly leftClick$: Subject<any[]> = new Subject<any[]>();
+
+  constructor(private store: Store) {
     this.changes = new Subject();
   }
 
   init(v: Viewer) {
     this.viewer = v;
+    this.clickHandlers();
+  }
+
+  registerToLeftClickEvents(callback: (elements: any[]) => void): void {
+    this.leftClick$.subscribe(callback);
   }
 
   private onChanged(collection: any, added: any, removed: any, changed: any) {
-    this.changes.next({ added, removed, changed });
+    this.changes.next({added, removed, changed});
   }
 
   async createLayer(name: string) {
@@ -48,13 +55,28 @@ export class MapService {
 
   onClick(selectedEntity: any) {
     console.log(selectedEntity.position)
-    this.areaService.getCirclePolylineOutlinePositions(singleRandomAirTrackCoordinate(), 500000)
-    if(selectedEntity) {
+    AreaService.getCirclePolylineOutlinePositions(singleRandomAirTrackCoordinate(), 500000)
+    if (selectedEntity) {
       this.store.dispatch(onSelectEntity({
         selectedEntityId: selectedEntity.id,
         layerName: selectedEntity.entityCollection.owner.name
       }))
     }
+  }
+
+  clickHandlers(): void {
+    const handler = new Cesium.ScreenSpaceEventHandler(this.viewer?.scene.canvas);
+    // TODO: any
+    handler.setInputAction((movement: any) => {
+      const pick = this.viewer?.scene.drillPick(movement.position);
+      if (Cesium.defined(pick) && pick?.length) {
+        this.leftClick$.next(pick.map(element => element.id).map((entity: Cesium.Entity) => ({
+          id: entity.id,
+          layerType: entity?.properties?.getValue(new Cesium.JulianDate()).layerType
+        })));
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
   }
 
   trackChanges() {
@@ -71,14 +93,10 @@ export class MapService {
     if (isLayerExists) {
       try {
         this.viewer?.entities.suspendEvents();
-        [...entitiesUpserted, ...entitiesRemoved].map((entity) =>
+        [...entitiesUpserted, ...entitiesRemoved].forEach((entity) => {
           ds[0].entities.remove(entity)
-        );
+        });
         entitiesUpserted.map((entity) => {
-          const currentEntity = ds[0].entities.getById(entity.id);
-          if (!!currentEntity) {
-            ds[0].entities.removeById(entity.id);
-          }
           ds[0].entities.add(entity);
         });
         this.viewer?.entities.resumeEvents();
@@ -92,15 +110,15 @@ export class MapService {
   updateAirplaneColorBlue(id: string, layer: string) {
     const airplaneToUpdate = this.getEntityById(id, layer)
 
-    if(airplaneToUpdate?.billboard) {
+    if (airplaneToUpdate?.billboard) {
       airplaneToUpdate.billboard.color = Cesium.Color.BLUE as any
     }
   }
-  
+
   updateAirplaneColorYellow(id: string, layer: string) {
     const airplaneToUpdate = this.getEntityById(id, layer)
 
-    if(airplaneToUpdate?.billboard) {
+    if (airplaneToUpdate?.billboard) {
       airplaneToUpdate.billboard.color = Cesium.Color.YELLOW as any
     }
   }
@@ -108,7 +126,7 @@ export class MapService {
   updateEntityPosition(id: string, layer: string, newPosition: Coordinate) {
     const airplaneToUpdate = this.getEntityById(id, layer)
 
-    if(airplaneToUpdate?.billboard) {
+    if (airplaneToUpdate?.billboard) {
       airplaneToUpdate.position = new ConstantPositionProperty(new Cartesian3(newPosition.latitude, newPosition.longitude)) as any
     }
   }
@@ -117,7 +135,7 @@ export class MapService {
     return this.viewer?.dataSources.getByName(layer)[0].entities.getById(id);
   }
 
-  getEntities(layer: string) {
+  getEntities(layer: MAP_LAYERS): Cesium.Entity[] {
     const ds = this.viewer?.dataSources.getByName(layer);
     const isLayerExists = ds?.length === 1;
     if (isLayerExists) {
