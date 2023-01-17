@@ -1,19 +1,20 @@
 import {Injectable} from '@angular/core';
 import * as Cesium from 'cesium';
-import {AirTrackMapEntity, ColorEnum, JetType, MAP_LAYERS} from '../../map.model';
-import {MapLayerControllerService} from './map-layer-controller.service';
-import {coordinateToCesiumPosition} from '../../../utils/coordinateToCesiumPosition';
-import {MapService} from '../../map.service';
+import {MAP_LAYERS} from '../../models/map.model';
+import {BaseMapLayerControllerService} from '../base-map-layer-controller.service';
+import {coordinateToCesiumPosition} from '../../../../utils/coordinateToCesiumPosition';
+import {MapService} from '../../services/map.service';
+import {AirTrackEntity, AirTrackPropertyToDeriveColorFromEnum, JetType} from '../../../air-track/air-track.models';
 
 @Injectable({
   providedIn: 'root',
 })
-export class AirTrackMapLayerControllerService extends MapLayerControllerService<AirTrackMapEntity> {
+export class AirTrackMapLayerControllerService extends BaseMapLayerControllerService<AirTrackEntity> {
   constructor(map: MapService) {
     super(map, MAP_LAYERS.AIR_TRACK_LAYER);
   }
 
-  convertToCesiumEntity(entities: AirTrackMapEntity[]): Cesium.Entity[] {
+  convertToCesiumEntity(entities: AirTrackEntity[]): Cesium.Entity[] {
     return entities.map(
       (entity) =>
         new Cesium.Entity({
@@ -23,7 +24,7 @@ export class AirTrackMapLayerControllerService extends MapLayerControllerService
           },
           position: coordinateToCesiumPosition(entity.coordinate),
           // polyline: {
-          //   positions: AreaService.getCirclePolylineOutlinePositions(entity.coordinate, entity.radius * 1000)
+          //   positions: getCirclePolylineOutlinePositions(entity.coordinate, entity.radius * 1000)
           // },
           // point: {
           //   color: Cesium.Color.GOLD,
@@ -32,7 +33,7 @@ export class AirTrackMapLayerControllerService extends MapLayerControllerService
           // }
           billboard: {
             image: this.getPlaneTypeImage(entity.name), // default: undefined
-            color: this.getPlaneColor(entity.color),
+            color: this.getPlaneColor(entity.someOtherPropertyToCalculateColor),
             scale: this.getScaleTypeImage(entity.name),
             scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.5, 8.0e6, 0.0),
           },
@@ -40,8 +41,8 @@ export class AirTrackMapLayerControllerService extends MapLayerControllerService
     );
   }
 
-  propertiesToListenWhenChangeHappens(): (keyof AirTrackMapEntity)[] {
-    return ['name', 'color', 'visible', 'coordinate']
+  propertiesToListenWhenChangeHappens(): (keyof AirTrackEntity)[] {
+    return ['name', 'someOtherPropertyToCalculateColor', 'coordinate']
   }
 
   private getPlaneTypeImage(name: JetType): string {
@@ -76,41 +77,45 @@ export class AirTrackMapLayerControllerService extends MapLayerControllerService
     return scale;
   }
 
-  private getPlaneColor(colorType: ColorEnum): Cesium.Color {
+  private getPlaneColor(colorType: AirTrackPropertyToDeriveColorFromEnum): Cesium.Color {
     let color: Cesium.Color;
     switch (colorType) {
-      case ColorEnum.RED :
+      case AirTrackPropertyToDeriveColorFromEnum.Hello :
         color = Cesium.Color.RED;
         break;
-      case ColorEnum.AQUA :
+      case AirTrackPropertyToDeriveColorFromEnum.The :
         color = Cesium.Color.AQUA;
         break;
-      case ColorEnum.MAGENTA :
+      case AirTrackPropertyToDeriveColorFromEnum.Other :
         color = Cesium.Color.MAGENTA;
         break;
-      case ColorEnum.YELLOW :
+      case AirTrackPropertyToDeriveColorFromEnum.Side :
         color = Cesium.Color.YELLOW;
         break;
-      case ColorEnum.BLUE :
+      case AirTrackPropertyToDeriveColorFromEnum.Must :
         color = Cesium.Color.BLUE;
         break;
-      case ColorEnum.GOLD :
+      case AirTrackPropertyToDeriveColorFromEnum.From :
         color = Cesium.Color.GOLD;
         break;
-      case ColorEnum.DEEPPINK :
+      case AirTrackPropertyToDeriveColorFromEnum.I :
         color = Cesium.Color.DEEPPINK;
         break;
-      case ColorEnum.ORANGE :
+      case AirTrackPropertyToDeriveColorFromEnum.Called :
         color = Cesium.Color.ORANGE;
         break;
-      case ColorEnum.GRAY :
+      case AirTrackPropertyToDeriveColorFromEnum.Have :
         color = Cesium.Color.GRAY;
         break;
-      case ColorEnum.PURPLE :
+      case AirTrackPropertyToDeriveColorFromEnum.Thousand :
         color = Cesium.Color.PURPLE;
         break;
+      case AirTrackPropertyToDeriveColorFromEnum.Times:
+        color = Cesium.Color.DIMGRAY
+        break;
+      default :
+        color = Cesium.Color.DARKSALMON;
     }
     return color;
-
   }
 }

@@ -1,10 +1,10 @@
 import {NgModule} from '@angular/core';
 import {EffectsModule} from '@ngrx/effects';
 import {StoreModule} from '@ngrx/store';
-import {ClosedAreasMapEffects} from './entities-effects/closed-areas.map.effects';
+import {ClosedAreasMapEffects} from '../entities-layers/closed-areas/closed-areas.map.effects';
 import {MapEffects} from './map.effects';
 import {mapReducer, mapReducerToken} from './map.reducer';
-import {AirTrackMapEffects} from './entities-effects/air-track.map.effects';
+import {AirTrackMapEffects} from '../entities-layers/air-tracks/air-track.map.effects';
 
 @NgModule({
     declarations: [],

@@ -9,9 +9,9 @@ import {
 } from './air-track.actions';
 import {map, withLatestFrom} from 'rxjs';
 import {AirTrackService} from '../services/air-track.service';
-import {selectAllQAirTracks} from './air-track.reducer';
+import {selectAllAirTracks} from './air-track.reducer';
 import {isNil, random, sampleSize} from 'lodash';
-import {AirTrackMapEntity} from '../../map.model';
+import {AirTrackEntity} from '../air-track.models';
 
 @Injectable()
 export class AirTrackEffects {
@@ -24,7 +24,8 @@ export class AirTrackEffects {
   addAirTracks$ = createEffect(() =>
     this.actions$.pipe(
       ofType(upsertAirTracksAction),
-      map(({airtracks}) => {
+      map(({amount}) => {
+        const airtracks = this.airTrackService.createAirTracks(amount ?? 10);
         return putAirTracksInStateActions({airtracks})
       })
     )
@@ -33,9 +34,9 @@ export class AirTrackEffects {
   updateSomeAirTracks$ = createEffect(() =>
     this.actions$.pipe(
       ofType(updateSomeAirTracksAction),
-      withLatestFrom(this.store.pipe(select(selectAllQAirTracks))),
+      withLatestFrom(this.store.pipe(select(selectAllAirTracks))),
       map(([_, airTracks]) => {
-        const sample: AirTrackMapEntity[] = sampleSize(airTracks, random(1, airTracks.length / 2));
+        const sample: AirTrackEntity[] = sampleSize(airTracks, random(1, airTracks.length / 2));
         const updatedEntities = this.airTrackService.updateAirTracks(sample.map(entity => entity.id));
         return putAirTracksInStateActions({airtracks: updatedEntities})
       })
@@ -69,9 +70,9 @@ export class AirTrackEffects {
   updateNonMapProperties$ = createEffect(() =>
     this.actions$.pipe(
       ofType(updateNonMapAirTracksPropertiesAction),
-      withLatestFrom(this.store.pipe(select(selectAllQAirTracks))),
+      withLatestFrom(this.store.pipe(select(selectAllAirTracks))),
       map(([_, airTracks]) => {
-        const sample: AirTrackMapEntity[] = sampleSize(airTracks, random(1, airTracks.length / 2));
+        const sample: AirTrackEntity[] = sampleSize(airTracks, random(1, airTracks.length / 2));
         const updatedSample = this.airTrackService.updateNonMapProperties(sample);
         return putAirTracksInStateActions({airtracks: updatedSample})
       })

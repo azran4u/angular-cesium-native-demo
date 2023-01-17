@@ -1,13 +1,13 @@
 import {createEntityAdapter, EntityState} from '@ngrx/entity';
 import {createFeatureSelector, createReducer, on} from '@ngrx/store';
-import {AirTrackMapEntity} from 'src/app/map.model';
-import {clearAirTracksAction, putAirTracksInStateActions, upsertAirTracksAction} from './air-track.actions';
+import {clearAirTracksAction, putAirTracksInStateActions} from './air-track.actions';
+import {AirTrackEntity} from '../air-track.models';
 
 export const airTrackReducerToken = 'air-track-reducer';
 
-export type AirTrackState = EntityState<AirTrackMapEntity>;
+export type AirTrackState = EntityState<AirTrackEntity>;
 
-const airTrackAdapter = createEntityAdapter<AirTrackMapEntity>();
+const airTrackAdapter = createEntityAdapter<AirTrackEntity>();
 
 export const airTrackAdapterInitialState = airTrackAdapter.getInitialState();
 
@@ -18,7 +18,7 @@ export const airTrackReducer = createReducer(
 )
 
 function upsertAirTracksActionHandler(state: AirTrackState,
-                                      {airtracks}: { airtracks: AirTrackMapEntity[] }): AirTrackState {
+                                      {airtracks}: { airtracks: AirTrackEntity[] }): AirTrackState {
   return airTrackAdapter.upsertMany(airtracks, state);
 }
 
@@ -28,5 +28,5 @@ function clearAirTracksActionHandler(state:AirTrackState): AirTrackState {
 
 export const selectAirTracksState = createFeatureSelector<AirTrackState>(airTrackReducerToken)
 
-export const {selectAll: selectAllQAirTracks} =
+export const {selectAll: selectAllAirTracks} =
   airTrackAdapter.getSelectors(selectAirTracksState)

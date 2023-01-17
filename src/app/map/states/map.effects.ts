@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Actions, createEffect, ofType } from "@ngrx/effects";
 import { map, tap } from "rxjs";
-import { MapService } from "../map.service";
+import { MapService } from "../services/map.service";
 import { onSelectEntity } from "./map.actions";
 
 @Injectable()
@@ -15,11 +15,11 @@ export class MapEffects {
             map(({selectedEntityId, layerName}) => {
                 // if(selectedEntity.billboard) {
                 //     selectedEntity.billboard.color = Cesium.Color.YELLOW
-            
+
                 //     selectedEntity.label = { text: 'selected', scale: 0.5, eyeOffset: [] }
                 // }
                 // this.mapService.updateAirplaneColorBlue(selectedEntityId, layerName)
-                this.mapService.updateAirplaneColorYellow(selectedEntityId, layerName)
+                // this.mapService.updateAirplaneColorYellow(selectedEntityId, layerName)
                 // this.mapService.updateEntityPosition(selectedEntityId, layerName, singleRandomAirTrackCoordinate())
             })
         ),

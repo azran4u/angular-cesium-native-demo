@@ -1,16 +1,16 @@
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {select, Store} from '@ngrx/store';
 import {filter, map, pairwise} from 'rxjs';
-import * as MapActions from '../map.actions';
-import {diffArrays} from '../../../utils/diff-arrays';
-import {MapLayerControllerService} from '../../map/map-layer-controllers/map-layer-controller.service';
-import {MapEntity} from '../../map.model';
+import * as MapActions from '../states/map.actions';
+import {BaseMapLayerControllerService} from './base-map-layer-controller.service';
+import {DrawableEntity} from '../models/map.model';
 
-export abstract class EntityMapEffects<T extends MapEntity> {
+export abstract class BaseEntityMapEffects<T extends DrawableEntity> {
   selector
+
   protected constructor(protected actions$: Actions,
                         protected store: Store,
-                        private entityLayerService: MapLayerControllerService<T>,
+                        private entityLayerService: BaseMapLayerControllerService<T>,
                         private entitySelector: (state: any) => T[]) {
     this.selector = entitySelector;
   }
@@ -22,7 +22,7 @@ export abstract class EntityMapEffects<T extends MapEntity> {
           const propertiesToCompare = this.entityLayerService.propertiesToListenWhenChangeHappens()
           // const {add, update, remove} = diffArrays(prev, curr, propertiesToCompare);
           // if (add.length || update.length || remove.length) {
-            await this.entityLayerService.upsertAndDeleteEntities(curr, []);
+          await this.entityLayerService.upsertAndDeleteEntities(curr, []);
           // }
         }),
       ),

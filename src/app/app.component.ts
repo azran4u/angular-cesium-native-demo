@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import {MapService} from './map.service';
+import {MapService} from './map/services/map.service';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +9,7 @@ import {MapService} from './map.service';
 export class AppComponent {
   constructor(private mapService: MapService) {
     this.mapService.registerToLeftClickEvents((elements) => {
-      console.log({elements});
+      // console.log({elements});
     })
   }
 }

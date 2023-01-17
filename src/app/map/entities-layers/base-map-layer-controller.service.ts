@@ -1,19 +1,23 @@
 import {Injectable} from '@angular/core';
 import * as Cesium from 'cesium';
-import {Coordinate, MAP_LAYERS, MapEntity} from '../../map.model';
-import {MapService} from '../../map.service';
+import {DrawableEntity, MAP_LAYERS} from '../models/map.model';
+import {MapService} from '../services/map.service';
+import {take} from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
-export abstract class MapLayerControllerService<T extends MapEntity> {
+export abstract class BaseMapLayerControllerService<T extends DrawableEntity> {
   private readonly layer: MAP_LAYERS = MAP_LAYERS.DEFAULT;
 
   protected constructor(private mapService: MapService, layer: MAP_LAYERS = MAP_LAYERS.DEFAULT) {
     this.layer = layer;
+    this.mapService.viewerReady$.pipe(take(1)).subscribe(() => {
+      this.createLayer().then();
+    })
   }
 
-  async createLayer() {
+  async createLayer(): Promise<void> {
     await this.mapService.createLayer(this.layer);
   }
 
@@ -21,12 +25,12 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
     return this.layer
   }
 
-  upsertEntities(entities: T[]) {
+  upsertEntities(entities: T[]): void {
     this.renderCurrentEntitiesOnMap(entities);
     this.showLayer();
   }
 
-  upsertAndDeleteEntities(entitiesToUpsert:T[], entitiesToDelete: T[]): void {
+  upsertAndDeleteEntities(entitiesToUpsert: T[], entitiesToDelete: T[]): void {
     this.mapService.upsertEntitiesToLayer(
       this.layer,
       this.convertToCesiumEntity(entitiesToUpsert),
@@ -34,7 +38,7 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
     );
   }
 
-  renderCurrentEntitiesOnMap(entities:T[]) {
+  renderCurrentEntitiesOnMap(entities: T[]): void {
     this.mapService.upsertEntitiesToLayer(
       this.layer,
       this.convertToCesiumEntity(entities),
@@ -42,19 +46,7 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
     );
   }
 
-  updateEntityColorById(id: string) {
-    this.mapService.updateAirplaneColorBlue(id, this.layer)
-  }
-
-  updateEntityColorOnClick(id: string) {
-    this.mapService.updateAirplaneColorYellow(id, this.layer)
-  }
-
-  updateEntityPosition(id: string, position: Coordinate) {
-    this.mapService.updateEntityPosition(id, this.layer, position)
-  }
-
-  removeAllEntitiesFromLayer() {
+  removeAllEntitiesFromLayer(): void {
     this.mapService.upsertEntitiesToLayer(
       this.layer,
       [],
@@ -62,20 +54,20 @@ export abstract class MapLayerControllerService<T extends MapEntity> {
     );
   }
 
-  hideLayer() {
+  hideLayer(): void {
     this.mapService.hideLayer(this.layer);
   }
 
-  showLayer() {
+  showLayer(): void {
     this.mapService.showLayer(this.layer);
   }
 
-  async focusOnEntities(entities?: T[]) {
-    // const entitiesToFocusOn = entities ?? this.currentEntities;
-    await this.mapService.flyTo(this.mapService.getEntities(this.layer));
+  async focusOnEntities(): Promise<void> {
+    const entitiesToFocusOn = this.mapService.getEntities(this.layer);
+    await this.mapService.flyTo(entitiesToFocusOn);
   }
 
-  async flyToEntity(id: string) {
+  async flyToEntity(id: string): Promise<void> {
     await this.mapService.flyTo(this.mapService.getEntityById(id, this.layer) ?? []);
   }
 

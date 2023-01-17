@@ -1,5 +1,5 @@
 import { BBox, randomPoint } from '@turf/turf';
-import { Coordinate } from '../app/map.model';
+import { Coordinate } from '../app/map/models/map.model';
 import * as turf from '@turf/turf';
 
 export function randomCoordinates(n: number, bbox: BBox): Coordinate[] {

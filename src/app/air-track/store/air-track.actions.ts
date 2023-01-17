@@ -1,5 +1,5 @@
 import {createAction, props} from '@ngrx/store';
-import {AirTrackMapEntity} from 'src/app/map.model';
+import {AirTrackEntity} from '../air-track.models';
 
 export enum AirTrackActions {
   ADD_AIR_TRACKS = '[Air Track] add air tracks',
@@ -14,7 +14,7 @@ export enum AirTrackActions {
 
 export const upsertAirTracksAction = createAction(
   AirTrackActions.ADD_AIR_TRACKS,
-  props<{ airtracks: AirTrackMapEntity[] }>()
+  props<{ amount?: number }>()
 )
 
 export const updateSomeAirTracksAction = createAction(
@@ -23,7 +23,7 @@ export const updateSomeAirTracksAction = createAction(
 
 export const putAirTracksInStateActions = createAction(
   AirTrackActions.PUT_AIR_TRACKS_IN_STATE,
-  props<{ airtracks: AirTrackMapEntity[] }>()
+  props<{ airtracks: AirTrackEntity[] }>()
 )
 
 export const listenToAirTracksUpdatesAction = createAction(

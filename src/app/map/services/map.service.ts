@@ -1,17 +1,14 @@
 import {Injectable} from '@angular/core';
-import {Viewer, Entity, Cartesian3, ConstantPositionProperty, Fullscreen} from 'cesium';
 import * as Cesium from 'cesium';
-import {debounceTime, Subject} from 'rxjs';
-import {Coordinate, MAP_LAYERS, MapEntity} from './map.model';
-import {Store} from '@ngrx/store';
-import {onSelectEntity} from './states/map.actions';
-import {AreaService} from './map/services/area.service';
-import {singleRandomAirTrackCoordinate} from 'src/utils/randomCoordinates';
+import {Entity, ScreenSpaceEventHandler, Viewer} from 'cesium';
+import {debounceTime, Observable, ReplaySubject, Subject} from 'rxjs';
+import {MAP_LAYERS} from '../models/map.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
+  viewerReady$:Observable<void>;
   private viewer: Viewer | undefined;
 
   private requestRender$ = new Subject<void>();
@@ -21,17 +18,20 @@ export class MapService {
     changed: Cesium.Entity[];
   }>;
 
-  private readonly leftClick$: Subject<any[]> = new Subject<any[]>();
+  private readonly viewerReadyReplaySubject$ = new ReplaySubject<void>(1);
+  private readonly leftClick$: Subject<{id:string; layerType:MAP_LAYERS}[]> = new Subject<{id:string; layerType:MAP_LAYERS}[]>();
 
-  constructor(private store: Store) {
+  constructor() {
     this.changes = new Subject();
     this.requestRender$.pipe(debounceTime(500)).subscribe(() => {
       this.viewer?.scene.requestRender();
     })
+    this.viewerReady$ = this.viewerReadyReplaySubject$.asObservable();
   }
 
   init(v: Viewer) {
     this.viewer = v;
+    this.viewerReadyReplaySubject$.next();
     this.clickHandlers();
   }
 
@@ -43,11 +43,11 @@ export class MapService {
     this.changes.next({added, removed, changed});
   }
 
-  async createLayer(name: string) {
+  async createLayer(name: MAP_LAYERS): Promise<void> {
     if (this.viewer?.dataSources.getByName(name).length === 0) {
       try {
         await this.viewer.dataSources.add(new Cesium.CustomDataSource(name));
-        await this.viewer.scene
+        // await this.viewer.scene
       } catch (error) {
         console.error(error);
       }
@@ -58,21 +58,10 @@ export class MapService {
     }
   }
 
-  onClick(selectedEntity: any) {
-    console.log(selectedEntity.position)
-    AreaService.getCirclePolylineOutlinePositions(singleRandomAirTrackCoordinate(), 500000)
-    if (selectedEntity) {
-      this.store.dispatch(onSelectEntity({
-        selectedEntityId: selectedEntity.id,
-        layerName: selectedEntity.entityCollection.owner.name
-      }))
-    }
-  }
-
   clickHandlers(): void {
     const handler = new Cesium.ScreenSpaceEventHandler(this.viewer?.scene.canvas);
     // TODO: any
-    handler.setInputAction((movement: any) => {
+    handler.setInputAction((movement: ScreenSpaceEventHandler.PositionedEvent) => {
       const pick = this.viewer?.scene.drillPick(movement.position);
       if (Cesium.defined(pick) && pick?.length) {
         this.leftClick$.next(pick.map(element => element.id).map((entity: Cesium.Entity) => ({
@@ -85,14 +74,13 @@ export class MapService {
   }
 
   trackChanges() {
+    // TODO: see what we gain from this subject
     return this.changes;
   }
 
-  upsertEntitiesToLayer(
-    layer: string,
-    entitiesUpserted: Entity[],
-    entitiesRemoved: Entity[]
-  ) {
+  upsertEntitiesToLayer(layer: string,
+                        entitiesUpserted: Entity[],
+                        entitiesRemoved: Entity[]): void {
     const ds = this.viewer?.dataSources.getByName(layer);
     const isLayerExists = ds?.length === 1;
     if (isLayerExists) {
@@ -116,31 +104,7 @@ export class MapService {
     }
   }
 
-  updateAirplaneColorBlue(id: string, layer: string) {
-    const airplaneToUpdate = this.getEntityById(id, layer)
-
-    if (airplaneToUpdate?.billboard) {
-      airplaneToUpdate.billboard.color = Cesium.Color.BLUE as any
-    }
-  }
-
-  updateAirplaneColorYellow(id: string, layer: string) {
-    const airplaneToUpdate = this.getEntityById(id, layer)
-
-    if (airplaneToUpdate?.billboard) {
-      airplaneToUpdate.billboard.color = Cesium.Color.YELLOW as any
-    }
-  }
-
-  updateEntityPosition(id: string, layer: string, newPosition: Coordinate) {
-    const airplaneToUpdate = this.getEntityById(id, layer)
-
-    if (airplaneToUpdate?.billboard) {
-      airplaneToUpdate.position = new ConstantPositionProperty(new Cartesian3(newPosition.latitude, newPosition.longitude)) as any
-    }
-  }
-
-  getEntityById(id: string, layer: string) {
+  getEntityById(id: string, layer: string): Entity | undefined {
     return this.viewer?.dataSources.getByName(layer)[0].entities.getById(id);
   }
 
@@ -153,25 +117,26 @@ export class MapService {
     return [];
   }
 
-  showLayer(layer: string) {
+  showLayer(layer: MAP_LAYERS): void {
     const ds = this.viewer?.dataSources.getByName(layer);
     if (ds?.length === 1) {
       ds[0].show = true;
     }
   }
 
-  hideLayer(layer: string) {
+  hideLayer(layer: MAP_LAYERS): void {
     const ds = this.viewer?.dataSources.getByName(layer);
     if (ds?.length === 1) {
       ds[0].show = false;
     }
   }
 
-  async flyTo(entity: Entity | Entity[]) {
+  async flyTo(entity: Entity | Entity[]): Promise<void> {
     await this.viewer?.zoomTo(entity);
   }
 
   mouseHover() {
+    // TODO: Come back here to handle the even properly. now i dont know what the use-case of hover on entity;
     const handler = new Cesium.ScreenSpaceEventHandler(
       this.viewer?.scene.canvas
     );

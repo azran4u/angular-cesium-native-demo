@@ -1,5 +1,5 @@
 import {createAction, props} from '@ngrx/store';
-import {ClosedAreaMapEntity} from 'src/app/map.model';
+import {ClosedAreaEntity} from '../closed-areas.models';
 
 export enum ClosedAreasActions {
   ADD_CLOSED_AREAS = '[Closed Area] add closed areas',
@@ -13,7 +13,7 @@ export enum ClosedAreasActions {
 
 export const upsertClosedAreasAction = createAction(
   ClosedAreasActions.ADD_CLOSED_AREAS,
-  props<{ closedAreas: ClosedAreaMapEntity[] }>()
+  props<{ amount?: number }>()
 )
 
 export const updateSomeClosedAreasAction = createAction(
@@ -22,7 +22,7 @@ export const updateSomeClosedAreasAction = createAction(
 
 export const putClosedAreasInStateActions = createAction(
   ClosedAreasActions.PUT_CLOSED_AREAS_IN_STATE,
-  props<{ closedAreas: ClosedAreaMapEntity[] }>()
+  props<{ closedAreas: ClosedAreaEntity[] }>()
 )
 
 export const listenToClosedAreasUpdatesAction = createAction(

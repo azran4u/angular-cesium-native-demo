@@ -1,5 +1,5 @@
-import { Coordinate } from '../app/map.model';
 import * as Cesium from 'cesium';
+import {Coordinate} from '../app/map/models/map.model';
 
 export function coordinateToCesiumPosition(coordinate: Coordinate) {
   return new Cesium.ConstantPositionProperty(

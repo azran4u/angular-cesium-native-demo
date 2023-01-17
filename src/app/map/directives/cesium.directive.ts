@@ -1,6 +1,6 @@
 import { Directive, ElementRef } from '@angular/core';
 import { Viewer } from 'cesium';
-import { MapService } from './map.service';
+import { MapService } from '../services/map.service';
 import * as Cesium from 'cesium';
 import { Store } from '@ngrx/store';
 
@@ -12,7 +12,6 @@ export class CesiumDirective {
   constructor(private el: ElementRef, private mapService: MapService, private store: Store) {
     Cesium.Ion.defaultAccessToken =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMWYwNzc0Ny03ZGFiLTQ2NDMtYjBhYi04NGFkYTJhZWI1NDMiLCJpZCI6MTE4NjcwLCJpYXQiOjE2NzEzNjUyOTV9.Ufg2h7HVgqgPgCSJrMo9UVH0n-LP-sUNPGwoxT0UWhQ';
-    console.log(`cesium directive constructor`);
     this.viewer = new Viewer(this.el.nativeElement, {
       sceneMode: Cesium.SceneMode.SCENE2D,
       baseLayerPicker: false,
@@ -30,16 +29,6 @@ export class CesiumDirective {
     });
 
     this.mapService.init(this.viewer);
-
-    // this.viewer.selectedEntityChanged.addEventListener((selectedEntity) => {
-    //   this.mapService.onClick(selectedEntity);
-    //   // this.store.dispatch(onSelectEntity({ selectedEntity }))
-    //   // console.log(typeof selectedEntity)
-    //   // console.log(selectedEntity._properties['originalId']._value)
-
-    //   // console.log(selectedEntity.entityCollection.owner.name)
-    //   // console.log(selectedEntity._id)
-    // })
   }
 
   getViewer(): Viewer {

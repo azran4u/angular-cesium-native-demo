@@ -2,16 +2,17 @@ import {Injectable} from '@angular/core';
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {select, Store} from '@ngrx/store';
 import {
-  upsertClosedAreasAction,
+  listenToClosedAreasUpdatesAction,
   putClosedAreasInStateActions,
+  stopListenToClosedAreasUpdatesAction,
   updateSomeClosedAreasAction,
-  listenToClosedAreasUpdatesAction, stopListenToClosedAreasUpdatesAction
+  upsertClosedAreasAction
 } from './closed-areas.actions';
 import {map, withLatestFrom} from 'rxjs';
 import {ClosedAreasService} from '../services/closed-areas.service';
 import {selectAllClosedAreas} from './closed-areas.reducer';
 import {isNil, random, sampleSize} from 'lodash';
-import {AirTrackMapEntity, ClosedAreaMapEntity} from '../../map.model';
+import {ClosedAreaEntity} from '../closed-areas.models';
 
 @Injectable()
 export class ClosedAreasEffects {
@@ -24,7 +25,8 @@ export class ClosedAreasEffects {
   addClosedAreas$ = createEffect(() =>
     this.actions$.pipe(
       ofType(upsertClosedAreasAction),
-      map(({closedAreas}) => {
+      map(({amount}) => {
+        const closedAreas = this.closedAreasService.createClosedAreas(amount ?? 10);
         return putClosedAreasInStateActions({closedAreas})
       })
     )
@@ -35,7 +37,7 @@ export class ClosedAreasEffects {
       ofType(updateSomeClosedAreasAction),
       withLatestFrom(this.store.pipe(select(selectAllClosedAreas))),
       map(([_, closedAreas]) => {
-        const sample: ClosedAreaMapEntity[] = sampleSize(closedAreas, random(1, closedAreas.length / 2));
+        const sample: ClosedAreaEntity[] = sampleSize(closedAreas, random(1, closedAreas.length / 2));
         const updatedEntities = this.closedAreasService.updateClosedAreas(sample.map(entity => entity.id));
         return putClosedAreasInStateActions({closedAreas: updatedEntities})
       })

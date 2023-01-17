@@ -1,5 +1,5 @@
 import {createAction, props} from '@ngrx/store'
-import {MAP_LAYERS} from '../map.model';
+import {MAP_LAYERS} from '../models/map.model';
 
 export enum MapActions {
     ON_SELECT_ENTITY = '[Map Actions] on select entity',

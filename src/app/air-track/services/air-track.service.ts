@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {AirTrackMapEntity, Coordinate} from '../../map.model';
+import {Coordinate} from '../../map/models/map.model';
 import {randomAirTrackCoordinates} from '../../../utils/randomCoordinates';
 import {v4 as uuidv4} from 'uuid';
 import {random} from 'lodash';
-import {from} from 'rxjs';
+import {AirTrackEntity} from '../air-track.models';
 
 @Injectable({
   providedIn: 'root'
@@ -12,19 +12,19 @@ export class AirTrackService {
   private colorsNumber = 10;
   private jetTypes = 3;
 
-  createAirTracks(amount: number): AirTrackMapEntity[] {
+  createAirTracks(amount: number): AirTrackEntity[] {
     return randomAirTrackCoordinates(amount).map((coordinate) => {
       return this.getEntity(coordinate);
     })
   }
 
-  updateAirTracks(ids: string[]): AirTrackMapEntity[] {
+  updateAirTracks(ids: string[]): AirTrackEntity[] {
     return randomAirTrackCoordinates(ids.length).map((coordinate, index) => {
       return this.getEntity(coordinate, ids[index]);
     })
   }
 
-  updateNonMapProperties(entities: AirTrackMapEntity[]): AirTrackMapEntity[] {
+  updateNonMapProperties(entities: AirTrackEntity[]): AirTrackEntity[] {
     return entities.map(entity => {
       const newEntity = this.getEntity(entity.coordinate, entity.id);
       return {
@@ -36,20 +36,18 @@ export class AirTrackService {
     })
   }
 
-  private getEntity(coordinate: Coordinate, id: string = uuidv4()): AirTrackMapEntity {
+  private getEntity(coordinate: Coordinate, id: string = uuidv4()): AirTrackEntity {
     const fromValues = ['israel', 'neverland', 'narnia', 'duckland', 'kansas'];
     const toValues = ['dreamland', 'disneyland', 'euroland', 'someotherland']
     return {
       id,
       coordinate,
-      color: random(0, this.colorsNumber),
+      someOtherPropertyToCalculateColor: random(0, this.colorsNumber),
       name: random(0, this.jetTypes),
       radius: random(100, 1000),
       from: fromValues[random(fromValues.length)],
       to: toValues[random(toValues.length)],
       firePower: random(0, 10),
-      label: 'label',
-      visible: true
     }
   }
 }
