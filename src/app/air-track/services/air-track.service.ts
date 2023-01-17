@@ -48,7 +48,8 @@ export class AirTrackService {
       from: fromValues[random(fromValues.length)],
       to: toValues[random(toValues.length)],
       firePower: random(0, 10),
-      label: 'label'
+      label: 'label',
+      visible: true
     }
   }
 }

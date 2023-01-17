@@ -4,7 +4,6 @@ import {AirTrackMapEntity, ColorEnum, JetType, MAP_LAYERS} from '../../map.model
 import {MapLayerControllerService} from './map-layer-controller.service';
 import {coordinateToCesiumPosition} from '../../../utils/coordinateToCesiumPosition';
 import {MapService} from '../../map.service';
-import {AreaService} from '../services/area.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +18,7 @@ export class AirTrackMapLayerControllerService extends MapLayerControllerService
       (entity) =>
         new Cesium.Entity({
           id: entity.id,
-          properties:{
+          properties: {
             layerType: this.layerType
           },
           position: coordinateToCesiumPosition(entity.coordinate),
@@ -42,7 +41,7 @@ export class AirTrackMapLayerControllerService extends MapLayerControllerService
   }
 
   propertiesToListenWhenChangeHappens(): (keyof AirTrackMapEntity)[] {
-    return ['name', 'color']
+    return ['name', 'color', 'visible', 'coordinate']
   }
 
   private getPlaneTypeImage(name: JetType): string {

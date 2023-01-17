@@ -13,6 +13,7 @@ export class ClosedAreasService {
       return {
         id: uuidv4(),
         coordinate,
+        visible: true
       };
     })
   }
@@ -22,6 +23,7 @@ export class ClosedAreasService {
       return {
         id: ids[index],
         coordinate,
+        visible: true
       };
     })
   }

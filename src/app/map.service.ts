@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Viewer, Entity, Cartesian3, ConstantPositionProperty, Fullscreen} from 'cesium';
 import * as Cesium from 'cesium';
-import {Subject} from 'rxjs';
+import {debounceTime, Subject} from 'rxjs';
 import {Coordinate, MAP_LAYERS, MapEntity} from './map.model';
 import {Store} from '@ngrx/store';
 import {onSelectEntity} from './states/map.actions';
@@ -13,6 +13,8 @@ import {singleRandomAirTrackCoordinate} from 'src/utils/randomCoordinates';
 })
 export class MapService {
   private viewer: Viewer | undefined;
+
+  private requestRender$ = new Subject<void>();
   private readonly changes: Subject<{
     added: Cesium.Entity[];
     removed: Cesium.Entity[];
@@ -23,6 +25,9 @@ export class MapService {
 
   constructor(private store: Store) {
     this.changes = new Subject();
+    this.requestRender$.pipe(debounceTime(500)).subscribe(() => {
+      this.viewer?.scene.requestRender();
+    })
   }
 
   init(v: Viewer) {
@@ -93,13 +98,17 @@ export class MapService {
     if (isLayerExists) {
       try {
         this.viewer?.entities.suspendEvents();
-        [...entitiesUpserted, ...entitiesRemoved].forEach((entity) => {
-          ds[0].entities.remove(entity)
-        });
-        entitiesUpserted.map((entity) => {
+        // [...entitiesUpserted, ...entitiesRemoved].forEach((entity) => {
+        //   ds[0].entities.remove(entity)
+        //  });
+        // ds[0].entities.suspendEvents()
+        ds[0].entities.removeAll();
+        entitiesUpserted.forEach((entity) => {
           ds[0].entities.add(entity);
         });
+        // ds[0].entities.resumeEvents()
         this.viewer?.entities.resumeEvents();
+        this.requestRender$.next();
       } catch (error) {
         console.error(error);
         // ignore already exists

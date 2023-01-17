@@ -5,8 +5,6 @@ import {MapLayerControllerService} from './map-layer-controller.service';
 import {coordinateToCesiumPosition} from '../../../utils/coordinateToCesiumPosition';
 import {MapService} from '../../map.service';
 import {AreaService} from '../services/area.service';
-import {randomAirTrackCoordinates} from 'src/utils/randomCoordinates';
-import {v4 as uuidv4} from 'uuid';
 
 
 @Injectable({
@@ -34,6 +32,6 @@ export class ClosedAreaMapLayerControllerService extends MapLayerControllerServi
   }
 
   override propertiesToListenWhenChangeHappens(): (keyof ClosedAreaMapEntity)[] {
-    return ['coordinate'];
+    return ['coordinate', 'visible'];
   }
 }

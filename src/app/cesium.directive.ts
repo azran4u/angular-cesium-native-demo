@@ -26,6 +26,7 @@ export class CesiumDirective {
       vrButton: false,
       animation: false,
       timeline: false,
+      requestRenderMode: true
     });
 
     this.mapService.init(this.viewer);

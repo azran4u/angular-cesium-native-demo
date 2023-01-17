@@ -9,6 +9,7 @@ export type MapEntityId = string;
 export interface MapEntity {
   id: MapEntityId;
   coordinate: Coordinate;
+  visible: boolean;
   label?: string;
 }
 

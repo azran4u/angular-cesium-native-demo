@@ -20,10 +20,10 @@ export abstract class EntityMapEffects<T extends MapEntity> {
         pairwise(),
         map(async ([prev, curr]) => {
           const propertiesToCompare = this.entityLayerService.propertiesToListenWhenChangeHappens()
-          const {add, update, remove} = diffArrays(prev, curr, propertiesToCompare);
-          if (add.length || update.length || remove.length) {
-            await this.entityLayerService.upsertAndDeleteEntities([...add, ...update], remove);
-          }
+          // const {add, update, remove} = diffArrays(prev, curr, propertiesToCompare);
+          // if (add.length || update.length || remove.length) {
+            await this.entityLayerService.upsertAndDeleteEntities(curr, []);
+          // }
         }),
       ),
     {dispatch: false}
