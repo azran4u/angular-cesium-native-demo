@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Viewer, Entity } from 'cesium';
 import * as Cesium from 'cesium';
 import { Subject } from 'rxjs';
+import { isNil } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -36,6 +37,56 @@ export class MapService {
       this.viewer.dataSources
         .getByName(name)[0]
         .entities.collectionChanged.addEventListener(this.onChanged.bind(this));
+
+      let previousPickedEntity: any;
+      const handler = this.viewer.screenSpaceEventHandler;
+      const viewer = this.viewer;
+
+      
+
+      handler.setInputAction(function (
+        movement: Cesium.ScreenSpaceEventHandler.MotionEvent
+      ) {
+        var pickedPrimitive = viewer.scene.pick(movement.endPosition);
+        var pickedEntity2 = viewer.selectedEntity;
+        var pickedEntity = Cesium.defined(pickedPrimitive)
+          ? pickedPrimitive.id
+          : undefined;
+        // Unhighlight the previously picked entity
+        if (Cesium.defined(previousPickedEntity)) {
+          previousPickedEntity.billboard.scale = 0.1;
+          previousPickedEntity.billboard.color = Cesium.Color.RED;
+        }
+        // Highlight the currently picked entity
+        if (
+          pickedEntity &&
+          pickedEntity.billboard &&
+          Cesium.defined(pickedEntity) &&
+          Cesium.defined(pickedEntity?.billboard)
+        ) {
+          console.log(`onHover: ${pickedEntity?.id}`);
+          // @ts-ignore
+          pickedEntity.billboard.scale = 0.3;
+          // @ts-ignore
+          pickedEntity.billboard.color = Cesium.Color.WHITE;
+          previousPickedEntity = pickedEntity;
+        }
+      },
+      Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+      handler.setInputAction(function (
+        position: Cesium.ScreenSpaceEventHandler.PositionedEvent
+      ) {
+        var pickedPrimitive = viewer.scene.pick(position.position);
+        var pickedEntity = Cesium.defined(pickedPrimitive)
+          ? pickedPrimitive.id
+          : undefined;
+
+        console.log(
+          `onClick: ${isNil(pickedEntity) ? 'undefined' : pickedEntity?.id}`
+        );
+      },
+      Cesium.ScreenSpaceEventType.LEFT_CLICK);
     }
   }
 

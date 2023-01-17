@@ -13,6 +13,8 @@ export class CesiumDirective {
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIxMWYwNzc0Ny03ZGFiLTQ2NDMtYjBhYi04NGFkYTJhZWI1NDMiLCJpZCI6MTE4NjcwLCJpYXQiOjE2NzEzNjUyOTV9.Ufg2h7HVgqgPgCSJrMo9UVH0n-LP-sUNPGwoxT0UWhQ';
     console.log(`cesium directive constructor`);
     this.viewer = new Viewer(this.el.nativeElement, {
+      requestRenderMode: true,
+      maximumRenderTimeChange: Infinity,
       sceneMode: Cesium.SceneMode.SCENE2D,
       baseLayerPicker: false,
       fullscreenButton: false,
@@ -28,6 +30,10 @@ export class CesiumDirective {
     });
 
     this.mapService.init(this.viewer);
+
+    this.viewer.selectedEntityChanged.addEventListener((selected) =>
+      console.log(`selected: ${selected}`)
+    );
   }
 
   getViewer(): Viewer {
