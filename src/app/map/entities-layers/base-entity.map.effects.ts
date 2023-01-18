@@ -1,7 +1,7 @@
 import {Actions, createEffect, ofType} from '@ngrx/effects';
 import {select, Store} from '@ngrx/store';
 import {filter, map, pairwise} from 'rxjs';
-import * as MapActions from '../states/map.actions';
+import * as MapActions from '../actions/map.actions';
 import {BaseMapLayerControllerService} from './base-map-layer-controller.service';
 import {DrawableEntity} from '../models/map.model';
 
@@ -38,4 +38,18 @@ export abstract class BaseEntityMapEffects<T extends DrawableEntity> {
       })
     ), {dispatch: false}
   )
+
+
+  leftClickOnMultipleElements$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(MapActions.leftClickOnMultipleEntitiesAction),
+      filter(({payload}) => !!payload[this.entityLayerService.layerType]),
+      map(({payload}) => payload[this.entityLayerService.layerType]?.map(entity => entity.id) ?? []),
+      map((entitiesIds: string[]) => {
+        this.leftClickOnMultipleElementsHandler(entitiesIds);
+      })
+    ), {dispatch: false}
+  )
+
+  abstract leftClickOnMultipleElementsHandler(elementIds: string[]): void
 }

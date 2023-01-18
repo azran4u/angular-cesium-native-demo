@@ -8,7 +8,7 @@ import {
   updateNonMapAirTracksPropertiesAction,
   upsertAirTracksAction
 } from '../air-track/store/air-track.actions';
-import {focusOnEntitiesAction} from '../map/states/map.actions';
+import {focusOnEntitiesAction} from '../map/actions/map.actions';
 import {
   clearClosedAreasAction,
   listenToClosedAreasUpdatesAction,

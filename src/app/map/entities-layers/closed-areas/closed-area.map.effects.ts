@@ -9,10 +9,14 @@ import {BaseEntityMapEffects} from '../base-entity.map.effects';
 import {ClosedAreaEntity} from '../../../closed-areas/closed-areas.models';
 
 @Injectable()
-export class ClosedAreasMapEffects extends BaseEntityMapEffects<ClosedAreaEntity> {
+export class ClosedAreaMapEffects extends BaseEntityMapEffects<ClosedAreaEntity> {
   constructor(protected override actions$: Actions,
               protected override store: Store,
               protected closedAreasLayer: ClosedAreaMapLayerControllerService,) {
     super(actions$, store, closedAreasLayer, selectAllClosedAreas)
+  }
+
+  leftClickOnMultipleElementsHandler(elementIds: string[]): void {
+    // TODO: dispatch whatever you want to do with the selected entities ids;
   }
 }

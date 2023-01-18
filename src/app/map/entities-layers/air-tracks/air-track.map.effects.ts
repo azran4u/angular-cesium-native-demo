@@ -15,4 +15,7 @@ export class AirTrackMapEffects extends BaseEntityMapEffects<AirTrackEntity>{
               private airTrackLayer: AirTrackMapLayerControllerService) {
     super(actions$, store, airTrackLayer, selectAllAirTracks);
   }
+  leftClickOnMultipleElementsHandler(elementIds: string[]): void {
+    // TODO: dispatch whatever you want to do with the selected entities ids;
+  }
 }

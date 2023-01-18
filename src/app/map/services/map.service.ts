@@ -35,7 +35,7 @@ export class MapService {
     this.clickHandlers();
   }
 
-  registerToLeftClickEvents(callback: (elements: any[]) => void): void {
+  registerToLeftClickEvents(callback: (elements: {id: string;layerType:MAP_LAYERS} []) => void): void {
     this.leftClick$.subscribe(callback);
   }
 
@@ -60,7 +60,6 @@ export class MapService {
 
   clickHandlers(): void {
     const handler = new Cesium.ScreenSpaceEventHandler(this.viewer?.scene.canvas);
-    // TODO: any
     handler.setInputAction((movement: ScreenSpaceEventHandler.PositionedEvent) => {
       const pick = this.viewer?.scene.drillPick(movement.position);
       if (Cesium.defined(pick) && pick?.length) {
