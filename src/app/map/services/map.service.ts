@@ -1,14 +1,22 @@
 import {Injectable} from '@angular/core';
 import * as Cesium from 'cesium';
-import {Entity, ScreenSpaceEventHandler, Viewer} from 'cesium';
+import {
+  BillboardCollection,
+  Entity,
+  LabelCollection,
+  PointPrimitiveCollection,
+  ScreenSpaceEventHandler,
+  Viewer
+} from 'cesium';
 import {debounceTime, Observable, ReplaySubject, Subject} from 'rxjs';
 import {MAP_LAYERS} from '../models/map.model';
+import {uniqBy} from 'lodash';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MapService {
-  viewerReady$:Observable<void>;
+  viewerReady$: Observable<void>;
   private viewer: Viewer | undefined;
 
   private requestRender$ = new Subject<void>();
@@ -19,11 +27,11 @@ export class MapService {
   }>;
 
   private readonly viewerReadyReplaySubject$ = new ReplaySubject<void>(1);
-  private readonly leftClick$: Subject<{id:string; layerType:MAP_LAYERS}[]> = new Subject<{id:string; layerType:MAP_LAYERS}[]>();
+  private readonly leftClick$: Subject<{ id: string; layerType: MAP_LAYERS }[]> = new Subject<{ id: string; layerType: MAP_LAYERS }[]>();
 
   constructor() {
     this.changes = new Subject();
-    this.requestRender$.pipe(debounceTime(500)).subscribe(() => {
+    this.requestRender$.pipe(debounceTime(50)).subscribe(() => {
       this.viewer?.scene.requestRender();
     })
     this.viewerReady$ = this.viewerReadyReplaySubject$.asObservable();
@@ -35,7 +43,7 @@ export class MapService {
     this.clickHandlers();
   }
 
-  registerToLeftClickEvents(callback: (elements: {id: string;layerType:MAP_LAYERS} []) => void): void {
+  registerToLeftClickEvents(callback: (elements: { id: string; layerType: MAP_LAYERS } []) => void): void {
     this.leftClick$.subscribe(callback);
   }
 
@@ -63,10 +71,20 @@ export class MapService {
     handler.setInputAction((movement: ScreenSpaceEventHandler.PositionedEvent) => {
       const pick = this.viewer?.scene.drillPick(movement.position);
       if (Cesium.defined(pick) && pick?.length) {
-        this.leftClick$.next(pick.map(element => element.id).map((entity: Cesium.Entity) => ({
-          id: entity.id,
-          layerType: entity?.properties?.getValue(new Cesium.JulianDate()).layerType
-        })));
+
+        const clickedIds = pick.map(element => element.id)
+          .map((entity: Cesium.Entity | { id: string; layerType: MAP_LAYERS }) => {
+            const id = entity.id;
+            let layerType;
+            if (entity instanceof Cesium.Entity) {
+              layerType = entity.properties?.getValue(new Cesium.JulianDate()).layerType
+            } else {
+              layerType = entity.layerType
+            }
+            return {id, layerType}
+          })
+        const uniqueElementIds = uniqBy(clickedIds, (item) => `${item.id}_${item.layerType}`)
+        this.leftClick$.next(uniqueElementIds);
       }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
@@ -101,6 +119,36 @@ export class MapService {
         // ignore already exists
       }
     }
+  }
+
+  // TODO: get back here when i have the time with the parameter type
+  removeCollection(collection: any): void {
+    this.viewer?.scene.primitives.remove(collection);
+  }
+
+  removeEntities(layerType: MAP_LAYERS): void {
+    this.viewer?.dataSources.getByName(layerType)[0].entities.removeAll();
+  }
+
+  addEntities(layerType: MAP_LAYERS, entities: Cesium.Entity[]): void {
+    entities.forEach(entity => {
+      this.viewer?.dataSources.getByName(layerType)[0].entities.add(entity)
+    })
+    this.requestRender$.next()
+  }
+
+  upsertPrimitives(primitives: { billboards: BillboardCollection | undefined; points: PointPrimitiveCollection | undefined; labels: LabelCollection | undefined }): void {
+    const {billboards, labels, points} = primitives;
+    if (billboards) {
+      this.viewer?.scene.primitives.add(billboards);
+    }
+    if (points) {
+      this.viewer?.scene.primitives.add(points);
+    }
+    if (labels) {
+      this.viewer?.scene.primitives.add(labels);
+    }
+    this.requestRender$.next()
   }
 
   getEntityById(id: string, layer: string): Entity | undefined {

@@ -4,6 +4,7 @@ import {filter, map, pairwise} from 'rxjs';
 import * as MapActions from '../actions/map.actions';
 import {BaseMapLayerControllerService} from './base-map-layer-controller.service';
 import {DrawableEntity} from '../models/map.model';
+import {diffArrays} from '../../../utils/diff-arrays';
 
 export abstract class BaseEntityMapEffects<T extends DrawableEntity> {
   selector
@@ -19,11 +20,18 @@ export abstract class BaseEntityMapEffects<T extends DrawableEntity> {
       this.store.pipe(select(this.entitySelector)).pipe(
         pairwise(),
         map(async ([prev, curr]) => {
+          console.log(curr.length)
           const propertiesToCompare = this.entityLayerService.propertiesToListenWhenChangeHappens()
-          // const {add, update, remove} = diffArrays(prev, curr, propertiesToCompare);
-          // if (add.length || update.length || remove.length) {
-          await this.entityLayerService.upsertAndDeleteEntities(curr, []);
-          // }
+          const {add, update, remove} = diffArrays(prev, curr, propertiesToCompare);
+          this.entityLayerService.drawElementsOnMap(curr)
+          if (add.length || update.length || remove.length) {
+            console.log([...add, ...update].length, 'after')
+            // const x = this.entityLayerService.convertToCesiumPrimitivesCollections(curr);
+            // this.entityLayerService.upsertAndDeletePrimitives(x.billboardsCollection);
+            // const entities = this.entityLayerService.convertToCesiumEntity(curr);
+            // await this.entityLayerService.upsertEntities(curr);
+            // await this.entityLayerService.upsertAndDeleteEntities(curr, []);
+          }
         }),
       ),
     {dispatch: false}

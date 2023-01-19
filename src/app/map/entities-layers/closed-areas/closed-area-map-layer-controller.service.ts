@@ -6,6 +6,7 @@ import {coordinateToCesiumPosition} from '../../../../utils/coordinateToCesiumPo
 import {MapService} from '../../services/map.service';
 import {ClosedAreaEntity, ClosedAreaTypeEnum} from '../../../closed-areas/closed-areas.models';
 import {getCirclePolylineOutlinePositions} from '../../utils/circle-polyline-outline-positions.function';
+import {BillboardCollection} from 'cesium';
 
 
 @Injectable({
@@ -29,12 +30,17 @@ export class ClosedAreaMapLayerControllerService extends BaseMapLayerControllerS
             positions: getCirclePolylineOutlinePositions(entity.coordinate, 50000),
             material: this.getPolylineColor(entity)
           },
+          billboard: {
+            image: '../assets/heli.png', // default: undefined
+            color: Cesium.Color.DEEPSKYBLUE,
+            scale: 0.05
+          }
         })
     );
   }
 
   override propertiesToListenWhenChangeHappens(): (keyof ClosedAreaEntity)[] {
-    return ['coordinate'];
+    return [] //['coordinate'];
   }
 
   private getPolylineColor(entity: ClosedAreaEntity): Cesium.Color {
@@ -54,5 +60,39 @@ export class ClosedAreaMapLayerControllerService extends BaseMapLayerControllerS
     }
 
     return color;
+  }
+
+  convertToCesiumPrimitivesCollections(entities: ClosedAreaEntity[]): { billboardsCollection: Cesium.BillboardCollection } {
+    return {billboardsCollection: new Cesium.BillboardCollection()};
+  }
+
+  getCesiumCollectionsFromElements(elements: ClosedAreaEntity[]): {
+    billboards?: Cesium.BillboardCollection;
+    points?: Cesium.PointPrimitiveCollection;
+    labels?: Cesium.LabelCollection;
+    entities?: Cesium.Entity[];
+  } {
+    const billboardCollection = new BillboardCollection();
+    const entities = []
+    for (const element of elements) {
+      entities.push(new Cesium.Entity({
+        id: element.id,
+        position: coordinateToCesiumPosition(element.coordinate),
+        properties: {
+          layerType: this.layerType
+        },
+        polyline: {
+          positions: getCirclePolylineOutlinePositions(element.coordinate, 50000),
+          material: this.getPolylineColor(element)
+        },
+        billboard: {
+          image: '../assets/heli.png', // default: undefined
+          color: Cesium.Color.DEEPSKYBLUE,
+          scale: 0.05
+        }
+      }))
+    }
+
+    return {billboards: billboardCollection, entities}
   }
 }

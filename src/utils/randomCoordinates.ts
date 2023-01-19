@@ -1,6 +1,7 @@
-import { BBox, randomPoint } from '@turf/turf';
-import { Coordinate } from '../app/map/models/map.model';
+import {BBox, randomPoint} from '@turf/turf';
+import {Coordinate} from '../app/map/models/map.model';
 import * as turf from '@turf/turf';
+import {random} from 'lodash';
 
 export function randomCoordinates(n: number, bbox: BBox): Coordinate[] {
   return randomPoint(n, {
@@ -13,7 +14,7 @@ export function randomCoordinates(n: number, bbox: BBox): Coordinate[] {
   });
 }
 
-export function randomAirTrackCoordinates(n: number): Coordinate[] {
+export function randomLocalCoordinates(n: number): Coordinate[] {
   return randomCoordinates(
     n,
     turf.bbox(
@@ -25,6 +26,12 @@ export function randomAirTrackCoordinates(n: number): Coordinate[] {
   );
 }
 
+export const getRandomCoordinates = (): Coordinate => {
+  const latitude = random(31, 35, true);
+  const longitude = random(32, 36, true);
+  return {latitude, longitude}
+}
+
 export function singleRandomAirTrackCoordinate(): Coordinate {
-  return randomAirTrackCoordinates(1)[0]
+  return randomLocalCoordinates(1)[0]
 }

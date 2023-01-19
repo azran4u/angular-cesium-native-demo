@@ -26,7 +26,7 @@ export class ClosedAreasEffects {
     this.actions$.pipe(
       ofType(upsertClosedAreasAction),
       map(({amount}) => {
-        const closedAreas = this.closedAreasService.createClosedAreas(amount ?? 10);
+        const closedAreas = this.closedAreasService.createClosedAreas((amount ?? 10).toString());
         return putClosedAreasInStateActions({closedAreas})
       })
     )

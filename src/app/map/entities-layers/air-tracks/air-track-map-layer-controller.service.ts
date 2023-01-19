@@ -5,6 +5,8 @@ import {BaseMapLayerControllerService} from '../base-map-layer-controller.servic
 import {coordinateToCesiumPosition} from '../../../../utils/coordinateToCesiumPosition';
 import {MapService} from '../../services/map.service';
 import {AirTrackEntity, AirTrackPropertyToDeriveColorFromEnum, JetType} from '../../../air-track/air-track.models';
+import {BillboardCollection} from 'cesium';
+import {getCirclePolylineOutlinePositions} from '../../utils/circle-polyline-outline-positions.function';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +14,77 @@ import {AirTrackEntity, AirTrackPropertyToDeriveColorFromEnum, JetType} from '..
 export class AirTrackMapLayerControllerService extends BaseMapLayerControllerService<AirTrackEntity> {
   constructor(map: MapService) {
     super(map, MAP_LAYERS.AIR_TRACK_LAYER);
+  }
+
+  getCesiumCollectionsFromElements(elements: AirTrackEntity[]): {
+    billboards?: Cesium.BillboardCollection | undefined;
+    points?: Cesium.PointPrimitiveCollection | undefined;
+    labels?: Cesium.LabelCollection | undefined;
+    entities?: Cesium.Entity[] | undefined;
+  } {
+    const billboardCollection = new BillboardCollection();
+    const entities = []
+    for (const element of elements) {
+      billboardCollection.add({
+        id: {id: element.id, layerType: this.layerType},
+        image: this.getPlaneTypeImage(element.name), // default: undefined
+        color: this.getPlaneColor(element.someOtherPropertyToCalculateColor),
+        scale: this.getScaleTypeImage(element.name),
+        position: coordinateToCesiumPosition(element.coordinate),
+      });
+      billboardCollection.add({
+        id: {id: element.id, layerType: this.layerType},
+        position: coordinateToCesiumPosition({
+          latitude: element.coordinate.latitude + 0.03,
+          longitude: element.coordinate.longitude + 0.03
+        }),
+        image: this.getPlaneTypeImage(element.name), // default: undefined
+        color: Cesium.Color.DEEPSKYBLUE,
+        scale: this.getScaleTypeImage(element.name),
+      });
+      entities.push(new Cesium.Entity({
+        id: element.id,
+        properties: {
+          layerType: this.layerType
+        },
+        position: coordinateToCesiumPosition(element.coordinate),
+        polyline: {
+          positions: getCirclePolylineOutlinePositions(element.coordinate, element.radius * 1000)
+        },
+      }))
+    }
+
+    return {billboards: billboardCollection,entities}
+  }
+
+
+  convertToCesiumPrimitivesCollections(entities: AirTrackEntity[]): { billboardsCollection: Cesium.BillboardCollection } {
+    const billboardsCollection = new Cesium.BillboardCollection();
+    let i = 0
+    for (const entity of entities) {
+      i++;
+      billboardsCollection.add({
+        id: {id: entity.id, layerType: this.layerType},
+        image: this.getPlaneTypeImage(entity.name), // default: undefined
+        color: this.getPlaneColor(entity.someOtherPropertyToCalculateColor),
+        scale: this.getScaleTypeImage(entity.name),
+        // scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.5, 8.0e6, 0.0),
+        position: coordinateToCesiumPosition(entity.coordinate),
+      });
+      billboardsCollection.add({
+        id: {id: entity.id, layerType: this.layerType},
+        position: coordinateToCesiumPosition({
+          latitude: entity.coordinate.latitude + 0.03,
+          longitude: entity.coordinate.longitude + 0.03
+        }),
+        image: this.getPlaneTypeImage(entity.name), // default: undefined
+        color: Cesium.Color.DEEPSKYBLUE,
+        scale: this.getScaleTypeImage(entity.name),
+        // scaleByDistance: new Cesium.NearFarScalar(1.5e2, 1.5, 8.0e6, 0.0),
+      })
+    }
+
+    return {billboardsCollection};
   }
 
   convertToCesiumEntity(entities: AirTrackEntity[]): Cesium.Entity[] {
@@ -42,7 +115,7 @@ export class AirTrackMapLayerControllerService extends BaseMapLayerControllerSer
   }
 
   propertiesToListenWhenChangeHappens(): (keyof AirTrackEntity)[] {
-    return ['name', 'someOtherPropertyToCalculateColor', 'coordinate']
+    return []// ['name', 'someOtherPropertyToCalculateColor', 'coordinate']
   }
 
   private getPlaneTypeImage(name: JetType): string {

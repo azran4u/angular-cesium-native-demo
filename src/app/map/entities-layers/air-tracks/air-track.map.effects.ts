@@ -17,5 +17,6 @@ export class AirTrackMapEffects extends BaseEntityMapEffects<AirTrackEntity>{
   }
   leftClickOnMultipleElementsHandler(elementIds: string[]): void {
     // TODO: dispatch whatever you want to do with the selected entities ids;
+    console.log(this.airTrackLayer.layerType, elementIds)
   }
 }

@@ -25,7 +25,7 @@ export class AirTrackEffects {
     this.actions$.pipe(
       ofType(upsertAirTracksAction),
       map(({amount}) => {
-        const airtracks = this.airTrackService.createAirTracks(amount ?? 10);
+        const airtracks = this.airTrackService.createAirTracks((amount ?? 10).toString());
         return putAirTracksInStateActions({airtracks})
       })
     )

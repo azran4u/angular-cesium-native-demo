@@ -18,5 +18,6 @@ export class ClosedAreaMapEffects extends BaseEntityMapEffects<ClosedAreaEntity>
 
   leftClickOnMultipleElementsHandler(elementIds: string[]): void {
     // TODO: dispatch whatever you want to do with the selected entities ids;
+    console.log(this.closedAreasLayer.layerType, elementIds)
   }
 }

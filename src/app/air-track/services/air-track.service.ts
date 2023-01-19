@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Coordinate} from '../../map/models/map.model';
-import {randomAirTrackCoordinates} from '../../../utils/randomCoordinates';
+import {randomLocalCoordinates} from '../../../utils/randomCoordinates';
 import {v4 as uuidv4} from 'uuid';
 import {random} from 'lodash';
 import {AirTrackEntity} from '../air-track.models';
@@ -12,14 +12,15 @@ export class AirTrackService {
   private colorsNumber = 10;
   private jetTypes = 3;
 
-  createAirTracks(amount: number): AirTrackEntity[] {
-    return randomAirTrackCoordinates(amount).map((coordinate) => {
+  createAirTracks(amount: string): AirTrackEntity[] {
+    return randomLocalCoordinates(parseInt(amount)).map((coordinate) => {
       return this.getEntity(coordinate);
     })
   }
 
   updateAirTracks(ids: string[]): AirTrackEntity[] {
-    return randomAirTrackCoordinates(ids.length).map((coordinate, index) => {
+    return randomLocalCoordinates(ids.length)
+      .map((coordinate, index) => {
       return this.getEntity(coordinate, ids[index]);
     })
   }
