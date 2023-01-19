@@ -6,7 +6,11 @@ import {coordinateToCesiumPosition} from '../../../../utils/coordinateToCesiumPo
 import {MapService} from '../../services/map.service';
 import {ClosedAreaEntity, ClosedAreaTypeEnum} from '../../../closed-areas/closed-areas.models';
 import {getCirclePolylineOutlinePositions} from '../../utils/circle-polyline-outline-positions.function';
-import {BillboardCollection} from 'cesium';
+import {
+  ICesiumBillboardOptions,
+  ICesiumLabelOptions,
+  ICesiumPointPrimitiveOptions
+} from '../../models/cesium-interfaces';
 
 
 @Injectable({
@@ -15,6 +19,31 @@ import {BillboardCollection} from 'cesium';
 export class ClosedAreaMapLayerControllerService extends BaseMapLayerControllerService<ClosedAreaEntity> {
   constructor(map: MapService) {
     super(map, MAP_LAYERS.CLOSED_AREA);
+  }
+
+  getCesiumElementForSingleEntity(element: ClosedAreaEntity): {
+    billboards?: ICesiumBillboardOptions[];
+    points?: ICesiumPointPrimitiveOptions[];
+    labels?: ICesiumLabelOptions[];
+    entity?: Cesium.Entity;
+  } {
+    const entity = new Cesium.Entity({
+      id: element.id,
+      position: coordinateToCesiumPosition(element.coordinate),
+      properties: {
+        layerType: this.layerType
+      },
+      polyline: {
+        positions: getCirclePolylineOutlinePositions(element.coordinate, 50000),
+        material: this.getPolylineColor(element)
+      },
+      billboard: {
+        image: '../assets/heli.png', // default: undefined
+        color: Cesium.Color.DEEPSKYBLUE,
+        scale: 0.05
+      }
+    })
+    return {entity};
   }
 
   convertToCesiumEntity(entities: ClosedAreaEntity[]): Cesium.Entity[] {
@@ -67,13 +96,13 @@ export class ClosedAreaMapLayerControllerService extends BaseMapLayerControllerS
   }
 
   getCesiumCollectionsFromElements(elements: ClosedAreaEntity[]): {
-    billboards?: Cesium.BillboardCollection;
-    points?: Cesium.PointPrimitiveCollection;
-    labels?: Cesium.LabelCollection;
+    billboards?: ICesiumBillboardOptions[];
+    points?:ICesiumPointPrimitiveOptions[];
+    labels?: ICesiumLabelOptions[];
     entities?: Cesium.Entity[];
   } {
-    const billboardCollection = new BillboardCollection();
     const entities = []
+    const billboards: ICesiumBillboardOptions[] = [];
     for (const element of elements) {
       entities.push(new Cesium.Entity({
         id: element.id,
@@ -93,6 +122,6 @@ export class ClosedAreaMapLayerControllerService extends BaseMapLayerControllerS
       }))
     }
 
-    return {billboards: billboardCollection, entities}
+    return {billboards, entities}
   }
 }

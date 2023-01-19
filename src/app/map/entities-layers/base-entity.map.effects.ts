@@ -20,17 +20,15 @@ export abstract class BaseEntityMapEffects<T extends DrawableEntity> {
       this.store.pipe(select(this.entitySelector)).pipe(
         pairwise(),
         map(async ([prev, curr]) => {
-          console.log(curr.length)
           const propertiesToCompare = this.entityLayerService.propertiesToListenWhenChangeHappens()
           const {add, update, remove} = diffArrays(prev, curr, propertiesToCompare);
-          this.entityLayerService.drawElementsOnMap(curr)
           if (add.length || update.length || remove.length) {
-            console.log([...add, ...update].length, 'after')
-            // const x = this.entityLayerService.convertToCesiumPrimitivesCollections(curr);
-            // this.entityLayerService.upsertAndDeletePrimitives(x.billboardsCollection);
-            // const entities = this.entityLayerService.convertToCesiumEntity(curr);
-            // await this.entityLayerService.upsertEntities(curr);
-            // await this.entityLayerService.upsertAndDeleteEntities(curr, []);
+            if (add.length + update.length > this.entityLayerService.smallAmountOfUpdatedEntities) {
+              this.entityLayerService.drawElementsOnMapAndDeletePreviousDrawnObjects2(curr);
+            } else {
+              this.entityLayerService.upsertAndDeleteElementsOnMap(add, update, remove.map(deletedElement => deletedElement.id))
+
+            }
           }
         }),
       ),

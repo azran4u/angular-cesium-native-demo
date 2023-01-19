@@ -97,7 +97,7 @@ export class MapService {
 
   upsertEntitiesToLayer(layer: string,
                         entitiesUpserted: Entity[],
-                        entitiesRemoved: Entity[]): void {
+                        shouldRemoveAll: boolean = false): void {
     const ds = this.viewer?.dataSources.getByName(layer);
     const isLayerExists = ds?.length === 1;
     if (isLayerExists) {
@@ -107,8 +107,11 @@ export class MapService {
         //   ds[0].entities.remove(entity)
         //  });
         // ds[0].entities.suspendEvents()
-        ds[0].entities.removeAll();
+        if (shouldRemoveAll) {
+          ds[0].entities.removeAll();
+        }
         entitiesUpserted.forEach((entity) => {
+          ds[0].entities.removeById(entity.id);
           ds[0].entities.add(entity);
         });
         // ds[0].entities.resumeEvents()
@@ -121,9 +124,30 @@ export class MapService {
     }
   }
 
+  removeEntitiesOfLayerByIds(layer: MAP_LAYERS, idsToRemove: string[]): void {
+    const ds = this.viewer?.dataSources.getByName(layer);
+    const isLayerExists = ds?.length === 1;
+    if (isLayerExists) {
+      try {
+        this.viewer?.entities.suspendEvents();
+        // [...entitiesUpserted, ...entitiesRemoved].forEach((entity) => {
+        //   ds[0].entities.remove(entity)
+        //  });
+        // ds[0].entities.suspendEvents()
+        idsToRemove.forEach(id => ds[0].entities.removeById(id));
+        // ds[0].entities.resumeEvents()
+        this.viewer?.entities.resumeEvents();
+        this.requestRender$.next();
+      } catch (error) {
+        console.error(error);
+        // ignore already exists
+      }
+    }
+  }
+
   // TODO: get back here when i have the time with the parameter type
-  removeCollection(collection: any): void {
-    this.viewer?.scene.primitives.remove(collection);
+  removeCollection(collection: any): boolean | undefined {
+    return this.viewer?.scene.primitives.remove(collection);
   }
 
   removeEntities(layerType: MAP_LAYERS): void {
@@ -140,13 +164,19 @@ export class MapService {
   upsertPrimitives(primitives: { billboards: BillboardCollection | undefined; points: PointPrimitiveCollection | undefined; labels: LabelCollection | undefined }): void {
     const {billboards, labels, points} = primitives;
     if (billboards) {
-      this.viewer?.scene.primitives.add(billboards);
+      if (!this.viewer?.scene.primitives.contains(billboards)) {
+        this.viewer?.scene.primitives.add(billboards);
+      }
     }
     if (points) {
-      this.viewer?.scene.primitives.add(points);
+      if (!this.viewer?.scene.primitives.contains(points)) {
+        this.viewer?.scene.primitives.add(points);
+      }
     }
     if (labels) {
-      this.viewer?.scene.primitives.add(labels);
+      if (!this.viewer?.scene.primitives.contains(labels)) {
+        this.viewer?.scene.primitives.add(labels);
+      }
     }
     this.requestRender$.next()
   }

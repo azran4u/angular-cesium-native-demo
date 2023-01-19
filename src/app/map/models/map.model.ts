@@ -17,3 +17,4 @@ export enum MAP_LAYERS {
   CLOSED_AREA = 'CLOSED_AREA',
   DEFAULT = 'DEFAULT',
 }
+
