@@ -23,8 +23,10 @@ export abstract class BaseEntityMapEffects<T extends DrawableEntity> {
           const propertiesToCompare = this.entityLayerService.propertiesToListenWhenChangeHappens()
           const {add, update, remove} = diffArrays(prev, curr, propertiesToCompare);
           if (add.length || update.length || remove.length) {
-            if (add.length + update.length > this.entityLayerService.smallAmountOfUpdatedEntities) {
-              this.entityLayerService.drawElementsOnMapAndDeletePreviousDrawnObjects2(curr);
+            // This check is for small amount of updated/added entities, so we won't have to
+            // destroy the whole collection and redraw, just to update the specific updated/added entities :)
+            if ((add.length || update.length) && add.length + update.length > this.entityLayerService.smallAmountOfUpdatedEntities) {
+              this.entityLayerService.drawElementsOnMapAndDeletePreviousDrawnObjects(curr);
             } else {
               this.entityLayerService.upsertAndDeleteElementsOnMap(add, update, remove.map(deletedElement => deletedElement.id))
 

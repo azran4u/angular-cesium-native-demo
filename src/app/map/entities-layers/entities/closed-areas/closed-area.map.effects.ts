@@ -3,10 +3,10 @@ import {Actions} from '@ngrx/effects';
 import {Store} from '@ngrx/store';
 import {
   ClosedAreaMapLayerControllerService
-} from 'src/app/map/entities-layers/closed-areas/closed-area-map-layer-controller.service';
-import {selectAllClosedAreas} from '../../../closed-areas/store/closed-areas.reducer';
-import {BaseEntityMapEffects} from '../base-entity.map.effects';
-import {ClosedAreaEntity} from '../../../closed-areas/closed-areas.models';
+} from 'src/app/map/entities-layers/entities/closed-areas/closed-area-map-layer-controller.service';
+import {selectAllClosedAreas} from '../../../../closed-areas/store/closed-areas.reducer';
+import {BaseEntityMapEffects} from '../../base-entity.map.effects';
+import {ClosedAreaEntity} from '../../../../closed-areas/closed-areas.models';
 
 @Injectable()
 export class ClosedAreaMapEffects extends BaseEntityMapEffects<ClosedAreaEntity> {

@@ -5,7 +5,8 @@ export interface IDiff<T> {
   update: T[];
   remove: T[];
 }
-
+// instead of compare properties you could do a function, an iteratee (like lodash do) a comparator of how to check
+// the difference between to objects with the same id.
 export function diffArrays<T extends { id: string }, K extends keyof T>(oldArr: T[], newArr: T[], compareProperties?: K[]): IDiff<T> {
   const oldsArrVal: T[] = oldArr ?? [];
   const newArrVal: T[] = newArr ?? [];
