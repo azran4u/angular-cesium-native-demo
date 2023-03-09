@@ -17,6 +17,7 @@ export abstract class EntityMapEffects<T extends MapEntity> {
 
   drawEntities$ = createEffect(() =>
       this.store.pipe(select(this.entitySelector)).pipe(
+        // TODO: add filter
         pairwise(),
         map(async ([prev, curr]) => {
           const propertiesToCompare = this.entityLayerService.propertiesToListenWhenChangeHappens()
