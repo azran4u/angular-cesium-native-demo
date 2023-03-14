@@ -1,16 +1,23 @@
-import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {EffectsModule} from '@ngrx/effects';
-import {ClosedAreaMapEffects} from './entities/closed-areas/closed-area.map.effects';
-import {AirTrackMapEffects} from './entities/air-tracks/air-track.map.effects';
-
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { EffectsModule } from '@ngrx/effects';
+import { ClosedAreaMapEffects } from './entities/closed-areas/closed-area.map.effects';
+import { AirTrackMapEffects } from './entities/air-tracks/air-track.map.effects';
+import { TargetMapEffects } from './entities/targets/targets.map.effects';
+import { ComponentMapEffects } from './entities/components/components.map.effects';
+import { RouteMapEffects } from './entities/routes/routes.map.effects';
 
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
-    EffectsModule.forFeature([ClosedAreaMapEffects, AirTrackMapEffects]),
-  ]
+    EffectsModule.forFeature([
+      ClosedAreaMapEffects,
+      AirTrackMapEffects,
+      TargetMapEffects,
+      ComponentMapEffects,
+      RouteMapEffects,
+    ]),
+  ],
 })
-export class EntitiesLayersModule {
-}
+export class EntitiesLayersModule {}

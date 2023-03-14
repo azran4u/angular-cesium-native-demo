@@ -9,6 +9,8 @@ import {ClosedAreasModule} from './closed-areas/closed-areas.module';
 import {MapModule} from './map/map.module';
 import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
+import { TargetModule } from './targets/target.modules';
+import { RouteModule } from './route/route.module';
 
 @NgModule({
   declarations: [
@@ -21,7 +23,9 @@ import {EffectsModule} from '@ngrx/effects';
     StoreModule.forRoot({}),
     EffectsModule.forRoot([]),
     AirTrackModule,
+    TargetModule,
     ClosedAreasModule,
+    RouteModule,
     MapModule
   ],
   bootstrap: [AppComponent],

@@ -1,4 +1,4 @@
-import {Coordinate, DrawableEntity} from '../map/models/map.model';
+import { SingleCoordinateDrawableEntity } from '../map/models/map.model';
 
 export enum AirTrackPropertyToDeriveColorFromEnum {
   Hello, From, The, Other,
@@ -13,9 +13,7 @@ export enum JetType {
   katbam
 }
 
-export interface AirTrackEntity extends DrawableEntity{
-  id: string;
-  coordinate: Coordinate;
+export interface AirTrackEntity extends SingleCoordinateDrawableEntity {
   name: JetType;
   radius: number;
   from: string;

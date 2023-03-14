@@ -1,13 +1,13 @@
 <br><br>
 <input type="text" placeholder="amount to add" [(ngModel)]="inputEntitiesAmount"><br>
-<div style="display: grid; grid-template-columns: auto auto; column-gap: 20px; max-width: 50vw">
+<button (click)="updateNonMapAirTracksProperties()">update non map related properties</button><br>
+<div style="display: grid; grid-template-columns: auto auto; column-gap: 20px; row-gap: 20px; max-width: 50vw">
   <div style="display: flex;flex-direction: column">
     <button (click)="customAddAirplanes()">add air-tracks</button>
     <button (click)="focusOnEntities(MapLayersEnum.AIR_TRACK_LAYER)">focus on air-tracks</button>
     <button (click)="updateAirTracks()">Start Updating air-tracks</button>
     <button (click)="stopUpdatingAirTracks()">Stop Updating air-tracks</button>
     <button (click)="clearAllAirTracks()">clear air-tracks</button>
-    <button (click)="updateNonMapAirTracksProperties()">update non map related properties</button>
   </div>
   <div style="display: flex;flex-direction: column">
     <button (click)="customAddCircles()">add circles</button>
@@ -15,6 +15,20 @@
     <button (click)="updateClosedAreas()">Start Updating circles</button>
     <button (click)="stopUpdatingClosedAreas()">Stop Updating circles</button>
     <button (click)="clearAllClosedAreas()">clear circles</button>
+  </div>
+  <div style="display: flex;flex-direction: column">
+    <button (click)="customAddTargets()">add targets</button>
+    <button (click)="focusOnEntities(MapLayersEnum.TARGET_LAYER)">focus on targets</button>
+    <button (click)="updateTargets()">Start Updating targets</button>
+    <button (click)="stopUpdatingTargets()">Stop Updating targets</button>
+    <button (click)="clearTargets()">clear targets</button>
+  </div>
+  <div style="display: flex;flex-direction: column">
+    <button (click)="customAddRoutes()">add routes</button>
+    <button (click)="focusOnEntities(MapLayersEnum.ROUTE_LAYER)">focus on routes</button>
+    <button (click)="updateRoutes()">Start Updating routes</button>
+    <button (click)="stopUpdatingRoutes()">Stop Updating routes</button>
+    <button (click)="clearRoutes()">clear routes</button>
   </div>
 </div>
 

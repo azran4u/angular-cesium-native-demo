@@ -1,8 +1,6 @@
-import {Coordinate, DrawableEntity} from '../map/models/map.model';
+import { SingleCoordinateDrawableEntity} from '../map/models/map.model';
 
-export interface ClosedAreaEntity extends DrawableEntity {
-  id: string;
-  coordinate:Coordinate;
+export interface ClosedAreaEntity extends SingleCoordinateDrawableEntity {
   radius: number;
   type: ClosedAreaTypeEnum;
 }
