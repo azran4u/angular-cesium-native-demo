@@ -27,6 +27,7 @@ import {
   stopListenToRoutesUpdatesAction,
   upsertRoutesAction,
 } from '../route/store/route.actions';
+import { clearPesahAction, listenToPesahUpdatesAction, stopListenToPesahUpdatesAction, upsertPesahAction } from '../pesah/store/pesah.actions';
 
 @Component({
   selector: 'app-layer-smaple',
@@ -61,6 +62,12 @@ export class LayerSmapleComponent {
     this.store.dispatch(
       upsertRoutesAction({ amount: this.inputEntitiesAmount })
     );
+  }
+
+  customAddPesah() {
+    this.store.dispatch(
+      upsertPesahAction({ amount: this.inputEntitiesAmount })
+    )
   }
 
   focusOnEntities(layerName: MAP_LAYERS): void {
@@ -99,6 +106,14 @@ export class LayerSmapleComponent {
     this.store.dispatch(stopListenToRoutesUpdatesAction());
   }
 
+  updatePesah(): void {
+    this.store.dispatch(listenToPesahUpdatesAction());
+  }
+
+  stopUpdatingPesah(): void {
+    this.store.dispatch(stopListenToPesahUpdatesAction());
+  }
+
   clearAllAirTracks(): void {
     this.store.dispatch(clearAirTracksAction());
   }
@@ -117,5 +132,9 @@ export class LayerSmapleComponent {
 
   clearRoutes(): void {
     this.store.dispatch(clearRoutesAction());
+  }
+
+  clearPesah(): void {
+    this.store.dispatch(clearPesahAction());
   }
 }

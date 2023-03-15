@@ -11,6 +11,7 @@ import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
 import { TargetModule } from './targets/target.modules';
 import { RouteModule } from './route/route.module';
+import { PesahModule } from './pesah/pesah.module';
 
 @NgModule({
   declarations: [
@@ -26,6 +27,7 @@ import { RouteModule } from './route/route.module';
     TargetModule,
     ClosedAreasModule,
     RouteModule,
+    PesahModule,
     MapModule
   ],
   bootstrap: [AppComponent],

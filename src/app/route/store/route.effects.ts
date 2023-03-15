@@ -29,7 +29,7 @@ export class RouteEffects {
       ofType(upsertRoutesAction),
       map(({ amount }) => {
         const routes = this.routeService.createRoutes(
-          (amount ?? 2).toString()
+          (amount ?? 10).toString()
         );
         return putRoutesInStateActions({ routes });
       })
