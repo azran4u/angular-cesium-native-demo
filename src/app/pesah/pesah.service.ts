@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { randomLocalCoordinates } from 'src/utils/randomCoordinates';
 import { Coordinate } from '../map/models/map.model';
-import { PesahEntity } from './pesah.model';
+import { OperationalStatus, PesahEntity } from './pesah.model';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
@@ -28,8 +28,10 @@ export class PesahService {
       id,
       coordinate,
       name: 'Name',
-      radius: 300,
+      radius: 30000,
       color: '#FF0000',
+      operationalStatus:
+        Math.random() > 0.5 ? OperationalStatus.HOT : OperationalStatus.COLD,
     };
   }
 }

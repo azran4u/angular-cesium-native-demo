@@ -44,6 +44,11 @@ export class PesahMapLayerControllerService extends BaseMapLayerControllerServic
       scale: 0.1,
     });
 
+    const positions = getCirclePolylineOutlinePositions(
+      element.coordinate,
+      element.radius
+    );
+
     const entity = new Cesium.Entity({
       id: element.id,
       position: coordinateToCesiumPosition(element.coordinate),
@@ -51,11 +56,26 @@ export class PesahMapLayerControllerService extends BaseMapLayerControllerServic
         layerType: this.layerType,
       },
       polyline: {
-        positions: getCirclePolylineOutlinePositions(element.coordinate, 50000),
+        positions,
         material: new Cesium.PolylineDashMaterialProperty({
           color: this.getPolylineColor(element),
           gapColor: Cesium.Color.BLACK,
         }),
+      },
+      polygon: {
+        hierarchy: {
+          positions,
+          holes: [
+            {
+              positions: getCirclePolylineOutlinePositions(
+                element.coordinate,
+                element.radius - element.radius * 0.15
+              ),
+              holes: [],
+            },
+          ],
+        },
+        material: Cesium.Color.RED.withAlpha(0.2),
       },
     });
     return { entity, billboards, labels };
